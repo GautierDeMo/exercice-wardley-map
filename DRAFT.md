@@ -21,6 +21,7 @@
 - Frontend : Vue.js (Vite)
 - Backend : Express.js
 - Base de données : PostgreSQL (via Prisma ORM)
+- Messaging : RabbitMQ (Gestion des délais et événements)
 
 ## Livrables du projet
 
