@@ -409,6 +409,8 @@ Les responsabilités de chaque invariant sont clairement attribuées. Nous pouvo
 
 **Prompt :**
 > We pass to the Generated Phase. It's the first phase of the blue chain. Could you please add the red chain on top of the file, just before the first phase. And the blue chain just before the Generated phase that is arriving with this request. Before begin the coding generation, I want you to do a list I have to follow to ask you to code. This list needs to follow the architecture we agreed on before. I want to ask you to write code step by step, file by file. I always want to test the file at the end of the generation. And doing it step by step is the best way to verify if it's working. With the list of steps to follow, I want also every indications you'll give me to create this project. I don't want the commands on this response. But I want you to write that you need to give me these commands every time you produce a file who needs to write a command in the shell. With it you can produce every file and folder of our project. But every file empty of course. And for the entry of the diary. This time too, you can write all of your response in it. It will be useful for us after
+>
+>Please update the P13 entry by adding what files you'll need in context to work the best. You'll always have the DRAFT file, the PROMPTs file. BUt do you need the MARKDOWN_RULES.md file in context? And for every step. I want you to tell me what files you'll need to see the big picture every time you generate code.
 
 **Réponse complète :**
 Voici le plan d'action étape par étape pour la phase de génération, ainsi que la mise en place de la structure du projet.
