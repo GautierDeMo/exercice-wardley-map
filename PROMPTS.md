@@ -588,3 +588,14 @@ Conseil de lancer `npm test` côté serveur pour sécurité. Génération de la 
 
 **Décision :**
 Frontend initialisé. Prêt pour l'intégration des composants.
+
+#### P25 - Composants Frontend (Cart & ProductList)
+
+**Prompt :**
+> Here are the logs "❯ cd client/ [...] frontend is running". ANd I see the "frontend is running" on my browser. If you think we're good with this. We can begin with the frontend components steps.
+
+**Résumé de la réponse :**
+Implémentation de la couche service `api.js` (Axios) pour communiquer avec le backend. Création des composants Vue `ProductList.vue` (Catalogue mocké, Ajout panier) et `Cart.vue` (Affichage panier, Checkout). Mise à jour de `App.vue` pour orchestrer la création du panier au chargement et la communication entre les composants.
+
+**Décision :**
+Frontend fonctionnel et connecté à l'API Backend.
