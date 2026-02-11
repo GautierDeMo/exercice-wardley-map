@@ -98,3 +98,21 @@ Voici le récapitulatif complet des choix architecturaux et techniques validés 
 
 **Décision :**
 L'architecture est figée. Intégration de RabbitMQ à la stack et adoption du pattern Event Sourcing pour le panier.
+
+## Phase : Analyse des Risques
+
+### P7 - Identification des limites et scénarios de rupture
+
+**Prompt :**
+> I didn't keep everything, like the P7 for correcting, it's not relevant for the diary. Now we have a model, a perimeter, invariables, constraints..., I want you to reveal me the limits if you can find limits we didn't take in account before. Is there any possible breaks in out logic, or problematic scenarios we didn't imagine
+
+**Résumé de la réponse :**
+Identification de 5 risques majeurs non couverts :
+1. Problème de "Dual Write" (Incohérence DB vs RabbitMQ).
+2. Versioning des règles métier avec l'Event Sourcing (changement de prix rétroactif).
+3. Concurrence sur les limites globales de promotions (Race condition).
+4. Paiement "Zombie" (Succès après réattribution du stock).
+5. Idempotence nécessaire des consommateurs RabbitMQ (risque de regonfler le stock).
+
+**Décision :**
+Prise en compte des limites. Nécessité de prévoir des mécanismes de mitigation (Idempotence, Outbox pattern ou transactionnel, Versioning des events).
