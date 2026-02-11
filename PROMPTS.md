@@ -63,35 +63,38 @@ En attente de la sélection des 5 hypothèses à retenir.
 Voici le récapitulatif complet des choix architecturaux et techniques validés pour le projet :
 
 #### 1. Stack Technique
-*   **Frontend :** Vue.js (via Vite). *Raison :* Confort de développement et performance.
-*   **Backend :** Express.js. *Raison :* Flexibilité et écosystème riche, structuré en "micro-outils".
-*   **Base de données :** PostgreSQL avec Prisma ORM. *Raison :* Robustesse relationnelle et typage fort.
-*   **Infrastructure additionnelle :** RabbitMQ. *Raison :* Nécessaire pour la gestion asynchrone des expirations (Hypothèse 14).
+
+* **Frontend :** Vue.js (via Vite). *Raison :* Confort de développement et performance.
+* **Backend :** Express.js. *Raison :* Flexibilité et écosystème riche, structuré en "micro-outils".
+* **Base de données :** PostgreSQL avec Prisma ORM. *Raison :* Robustesse relationnelle et typage fort.
+* **Infrastructure additionnelle :** RabbitMQ. *Raison :* Nécessaire pour la gestion asynchrone des expirations (Hypothèse 14).
 
 #### 2. Invariants et Périmètre
-*   **Périmètre :** Gestion de panier, Tunnel d'achat, Simulation paiement, Gestion des commandes, Relance panier abandonné.
-*   **Invariants Critiques :**
-    *   Atomicité du stock (pas de survente).
-    *   Cohérence des états de commande (Machine à états).
-    *   Exclusivité des promotions incompatibles.
-    *   Expiration stricte des réservations (TTL).
+
+* **Périmètre :** Gestion de panier, Tunnel d'achat, Simulation paiement, Gestion des commandes, Relance panier abandonné.
+* **Invariants Critiques :**
+  * Atomicité du stock (pas de survente).
+  * Cohérence des états de commande (Machine à états).
+  * Exclusivité des promotions incompatibles.
+  * Expiration stricte des réservations (TTL).
 
 #### 3. Hypothèses d'Implémentation Validées
-*   **Réservation de Stock : Verrouillage Optimiste (Hypothèse 2)**
-    *   *Choix :* Utilisation d'une colonne de versioning.
-    *   *Raison :* Meilleure performance que le verrouillage pessimiste sur fort trafic, géré nativement par Prisma.
-*   **Gestion des Promotions : Service Centralisé (Hypothèse 4)**
-    *   *Choix :* `PromotionService` dédié.
-    *   *Raison :* Isole la complexité des règles métiers (incompatibilités) du reste de l'application.
-*   **Transitions d'État : XState (Hypothèse 7)**
-    *   *Choix :* Librairie de machine à états finis.
-    *   *Raison :* Garantit mathématiquement que les transitions invalides (ex: expédier sans payer) sont impossibles.
-*   **Calcul du Total : Event Sourcing (Hypothèse 12)**
-    *   *Choix :* Reconstruction du total via l'historique des événements (`item_added`, `promo_applied`).
-    *   *Raison :* Traçabilité totale et débogage facilité des erreurs de calcul.
-*   **Expiration des Réservations : RabbitMQ & Consumers (Hypothèse 14)**
-    *   *Choix :* Messages retardés (Delayed Exchange).
-    *   *Raison :* Plus précis et scalable qu'un Cron job pour libérer le stock exactement à la fin du TTL.
+
+* **Réservation de Stock : Verrouillage Optimiste (Hypothèse 2)**
+  * *Choix :* Utilisation d'une colonne de versioning.
+  * *Raison :* Meilleure performance que le verrouillage pessimiste sur fort trafic, géré nativement par Prisma.
+* **Gestion des Promotions : Service Centralisé (Hypothèse 4)**
+  * *Choix :* `PromotionService` dédié.
+  * *Raison :* Isole la complexité des règles métiers (incompatibilités) du reste de l'application.
+* **Transitions d'État : XState (Hypothèse 7)**
+  * *Choix :* Librairie de machine à états finis.
+  * *Raison :* Garantit mathématiquement que les transitions invalides (ex: expédier sans payer) sont impossibles.
+* **Calcul du Total : Event Sourcing (Hypothèse 12)**
+  * *Choix :* Reconstruction du total via l'historique des événements (`item_added`, `promo_applied`).
+  * *Raison :* Traçabilité totale et débogage facilité des erreurs de calcul.
+* **Expiration des Réservations : RabbitMQ & Consumers (Hypothèse 14)**
+  * *Choix :* Messages retardés (Delayed Exchange).
+  * *Raison :* Plus précis et scalable qu'un Cron job pour libérer le stock exactement à la fin du TTL.
 
 **Décision :**
 L'architecture est figée. Intégration de RabbitMQ à la stack et adoption du pattern Event Sourcing pour le panier.
