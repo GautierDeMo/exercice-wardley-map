@@ -9,6 +9,7 @@ const app = express();
 
 const stockRoutes = require('./modules/stock/stock.routes');
 const cartRoutes = require('./modules/cart/cart.routes');
+const orderRoutes = require('./modules/order/order.routes');
 
 // Middleware
 app.use(helmet());
@@ -24,6 +25,7 @@ app.get('/', (req, res) => {
 // Module Routes
 app.use('/api/stock', stockRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/orders', orderRoutes);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

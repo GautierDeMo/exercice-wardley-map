@@ -544,3 +544,14 @@ Mise à jour du schéma Prisma pour inclure `Cart` et `CartEvent`. Implémentati
 
 **Décision :**
 Module Cart implémenté avec persistance des événements.
+
+#### P21 - Module Order (Machine à États XState)
+
+**Prompt :**
+> Here are the tests logs "❯ npm test tests/unit/cart.service.test.js [...] PASS". We're good, we can continue with the next module please: order
+
+**Résumé de la réponse :**
+Implémentation de `order.machine.js` avec XState pour gérer les transitions (Draft -> Pending -> Paid/Expired -> Conflict). Création des routes `order.routes.js` qui utilisent la machine pour valider les changements d'état avant mise à jour en base. Ajout de tests unitaires pour vérifier la logique de transition.
+
+**Décision :**
+Module Order implémenté avec une machine à états stricte.
