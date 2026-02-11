@@ -22,6 +22,7 @@
 - Backend : Express.js
 - Base de données : PostgreSQL (via Prisma ORM)
 - Messaging : RabbitMQ (Gestion des délais et événements)
+- Cache/Compteurs : Redis (Limites globales de promotion)
 
 ## Livrables du projet
 

@@ -134,3 +134,19 @@ Correction du formatage (MD032) et renumérotation des prompts (P5->P4, etc.). P
 
 **Décision :**
 En attente du choix des stratégies de mitigation.
+
+### P8 - Choix des stratégies de mitigation et Ajout de Redis
+
+**Prompt :**
+> For the first and second risk, I agree with your recommended options. Also for the 4th and 5th risk, recommended option are good. But for the global promo limits I think even if the solution is hard, the best is the option A. Tell me which options is the most suitable.
+
+**Résumé de la réponse :**
+Confirmation des choix :
+1. Dual Write -> Outbox Pattern.
+2. Versioning -> Snapshotting des valeurs.
+3. Concurrence Promo -> Redis Atomic Counter (Option A).
+4. Zombie Payment -> Auto-Refund (État Conflit).
+5. Idempotence -> Vérification d'état.
+
+**Décision :**
+Stratégies validées. Ajout de Redis à la stack technique pour gérer les compteurs atomiques.
