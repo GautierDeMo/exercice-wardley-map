@@ -1,6 +1,6 @@
 # Journal du projet
 
-## Phase : Exploration
+## Phase : Décision
 
 ### P1 - Choix de la stack et clarification des contraintes
 
@@ -12,8 +12,6 @@ Explication de la contrainte "Paiement après expiration" comme étant un cas li
 
 **Décision :**
 À définir (Choix de la stack en attente).
-
-## Phase : Décision
 
 ### P2 - Définition de la stack, des invariants, du périmètre et des critères de succès
 
@@ -53,6 +51,8 @@ Proposition de 15 hypothèses techniques réparties sur 5 thèmes (Réservation 
 
 **Décision :**
 En attente de la sélection des 5 hypothèses à retenir.
+
+## Phase : Exploration
 
 ### P5 - Validation des hypothèses et Résumé de l'architecture
 
@@ -99,7 +99,7 @@ Voici le récapitulatif complet des choix architecturaux et techniques validés 
 **Décision :**
 L'architecture est figée. Intégration de RabbitMQ à la stack et adoption du pattern Event Sourcing pour le panier.
 
-## Phase : Analyse des Risques
+## Phase : Conversation
 
 ### P6 - Identification des limites et scénarios de rupture
 
@@ -194,34 +194,34 @@ stateDiagram-v2
 
 #### 2. Transition Logic & Guards
 
-*   **Draft → Pending**
-    *   *Trigger:* User clicks "Checkout".
-    *   *Logic:* Optimistic Stock Reservation (DB Versioning) + Emit "Timer Started" event (Outbox).
-    *   *Guard:* `Stock > 0`.
-*   **Pending → Paid**
-    *   *Trigger:* Payment Provider Webhook (Success).
-    *   *Logic:* Mark Order Paid.
-    *   *Invariant:* Stock is considered permanently deducted.
-*   **Pending → Expired**
-    *   *Trigger:* RabbitMQ Delayed Message Consumer.
-    *   *Logic:* Release Stock (Increment DB).
-    *   *Guard:* Order is still `Pending`. (If `Paid`, ignore message).
-*   **Expired → Conflict (The "Zombie" Case)**
-    *   *Trigger:* Payment Provider Webhook (Success).
-    *   *Logic:* Money is received, but stock is gone. Transition to `Conflict` to flag for resolution.
-    *   *Invariant:* Cannot go to `Paid` because stock is no longer held.
-*   **Conflict → Refunded**
-    *   *Trigger:* Automatic System Process (or Admin Action).
-    *   *Logic:* Issue Refund via Payment Gateway.
+* **Draft → Pending**
+  * *Trigger:* User clicks "Checkout".
+  * *Logic:* Optimistic Stock Reservation (DB Versioning) + Emit "Timer Started" event (Outbox).
+  * *Guard:* `Stock > 0`.
+* **Pending → Paid**
+  * *Trigger:* Payment Provider Webhook (Success).
+  * *Logic:* Mark Order Paid.
+  * *Invariant:* Stock is considered permanently deducted.
+* **Pending → Expired**
+  * *Trigger:* RabbitMQ Delayed Message Consumer.
+  * *Logic:* Release Stock (Increment DB).
+  * *Guard:* Order is still `Pending`. (If `Paid`, ignore message).
+* **Expired → Conflict (The "Zombie" Case)**
+  * *Trigger:* Payment Provider Webhook (Success).
+  * *Logic:* Money is received, but stock is gone. Transition to `Conflict` to flag for resolution.
+  * *Invariant:* Cannot go to `Paid` because stock is no longer held.
+* **Conflict → Refunded**
+  * *Trigger:* Automatic System Process (or Admin Action).
+  * *Logic:* Issue Refund via Payment Gateway.
 
 #### 3. Explicitly Forbidden Transitions (Safety Checks)
 
 To ensure system integrity, the XState machine must explicitly block these paths:
 
-*   **Draft → Paid**: *Security Risk.* Attempting to pay without reserving stock.
-*   **Pending → Shipped**: *Process Violation.* Skipping Payment and Preparation steps.
-*   **Paid → Expired**: *Consistency Risk.* A late RabbitMQ message must NOT release stock for a paid order. The consumer must check `if (state === 'Pending')`.
-*   **Expired → Paid**: *Inventory Risk.* Accepting an order when stock has been released to someone else. Must go to `Conflict`.
+* **Draft → Paid**: *Security Risk.* Attempting to pay without reserving stock.
+* **Pending → Shipped**: *Process Violation.* Skipping Payment and Preparation steps.
+* **Paid → Expired**: *Consistency Risk.* A late RabbitMQ message must NOT release stock for a paid order. The consumer must check `if (state === 'Pending')`.
+* **Expired → Paid**: *Inventory Risk.* Accepting an order when stock has been released to someone else. Must go to `Conflict`.
 
 **Décision :**
 The State Machine model is validated. It covers the nominal flow, the expiration flow, and the critical "Zombie Payment" edge case via the `Conflict` state.
