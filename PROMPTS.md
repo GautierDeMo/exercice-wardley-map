@@ -467,3 +467,14 @@ Pour travailler efficacement, voici les fichiers que je dois avoir en contexte �
 
 **Décision :**
 Passage à la Blue Chain (Génération). Plan d'action validé et squelette du projet créé.
+
+#### P14 - Infrastructure (Docker & Env)
+
+**Prompt :**
+> We're going for the infrastructure step. You can write the code in the docker-compose file and update the .env file. For this kind of prompt you can add an entry for the P14 but with a reduce response like we did in the beginning
+
+**Résumé de la réponse :**
+Génération du `docker-compose.yml` incluant PostgreSQL, Redis et RabbitMQ (avec le plugin `delayed_message_exchange`). Configuration des variables d'environnement dans `server/.env.example`.
+
+**Décision :**
+Infrastructure définie. Prêt pour l'initialisation du backend.
