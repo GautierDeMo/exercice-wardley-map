@@ -1,6 +1,6 @@
+# Journal du projet
 
 ## Phase : Exploration
-
 
 ### P1 - Choix de la stack et clarification des contraintes
 
@@ -14,6 +14,7 @@ Explication de la contrainte "Paiement après expiration" comme étant un cas li
 À définir (Choix de la stack en attente).
 
 ## Phase : Décision
+
 ### P2 - Définition de la stack, des invariants, du périmètre et des critères de succès
 
 **Prompt :**

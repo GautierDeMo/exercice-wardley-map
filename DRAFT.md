@@ -33,14 +33,14 @@ Coding, Composition)
   - le prompt exact envoyé
   - un résumé de la réponse obtenu
   - la décision suite à l'échange (ce qui a été modifié, gardé, jeté...)
+
+**Ex de format attendu :**
+
+```markdown
+## Phase : [nom de la phase]
 ### P1 - [titre court]
 **Prompt :**
 > [votre prompt exact ici]
 **Résumé de la réponse :** [2-3 lignes]
 **Décision :** [ce que vous en avez fait]
 ```
-
-### Règles markdown du fichier PROMPT.md à ne pas oublier
-
-- les headers ont des saut de ligne au dessus et en dessous d'eux
-- globalement, il faut suivre les règles de markdownlint, de DavidAnson
