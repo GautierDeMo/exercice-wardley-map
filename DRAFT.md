@@ -43,3 +43,6 @@ Coding, Composition)
 **Décision :** [ce que vous en avez fait]
 ```
 
+### Règles markdown du fichier PROMPT.md à ne pas oublier
+
+- les headers ont des saut de ligne au dessus et en dessous d'eux
