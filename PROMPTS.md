@@ -226,7 +226,7 @@ To ensure system integrity, the XState machine must explicitly block these paths
 **Décision :**
 The State Machine model is validated. It covers the nominal flow, the expiration flow, and the critical "Zombie Payment" edge case via the `Conflict` state.
 
-## Phase : Architecture & Structure
+## Phase : Model Centric
 
 ### P10 - Définition de l'arborescence du projet
 
@@ -290,3 +290,65 @@ Ajout de la règle MD030 dans DRAFT.md. Proposition d'une structure de projet "M
 
 **Décision :**
 Structure validée pour supporter les contraintes techniques (Workers, Modules isolés).
+
+### P11 - Définition détaillée des responsabilités par composant
+
+**Prompt :**
+> Next step for the Model Centric phase. I want you tu list every responsibilities for every file or component please. For this entry in the PROMPTS file, you can write all of your response in the diary. It's important for what's next
+
+**Réponse complète :**
+Voici la liste exhaustive des responsabilités pour chaque fichier et composant de l'architecture :
+
+#### 1. Infrastructure & Configuration
+
+* **`docker-compose.yml`** : Orchestration des services externes. Doit monter les images PostgreSQL (persistance), RabbitMQ (messaging avec plugin `delayed_message_exchange`) et Redis (cache/compteurs).
+* **`server/prisma/schema.prisma`** : Source de vérité du modèle de données. Définit les relations (Product <-> Stock), les contraintes d'unicité, et le modèle `Outbox` pour la fiabilité des événements.
+
+#### 2. Backend (Server) - Core
+
+* **`src/app.js`** : Point d'entrée. Initialise Express, configure les middlewares globaux (CORS, BodyParser), monte les routes des modules et gère le handler d'erreur global.
+* **`src/config/db.js`** : Singleton Prisma. Gère la connexion/déconnexion propre à la base de données.
+* **`src/config/rabbitmq.js`** : Wrapper RabbitMQ. Gère la connexion, la création des channels et des exchanges. Expose des méthodes `publishToQueue` et `publishDelayed`.
+* **`src/config/redis.js`** : Wrapper Redis. Expose les méthodes atomiques (`INCR`, `GET`) pour les limites de promotions globales.
+
+#### 3. Backend - Modules (Micro-outils)
+
+* **`src/modules/cart/`**
+  * **`cart.routes.js`** : Expose les endpoints HTTP (`POST /items`, `POST /promo`).
+  * **`cart.service.js`** : Cerveau du panier.
+    * Gère l'Event Sourcing (stocke `item_added`, `promo_applied`).
+    * Rejoue les événements pour calculer l'état actuel (Total, Articles).
+    * Appelle `PromotionService` (interne ou externe) pour valider les règles d'incompatibilité.
+* **`src/modules/stock/`**
+  * **`stock.service.js`** : Gardien de l'atomicité.
+    * Exécute les réservations avec verrouillage optimiste (vérifie `version`).
+    * Gère la libération du stock (incrément).
+* **`src/modules/order/`**
+  * **`order.machine.js`** : Définition XState. Contient le graphe des états (`Pending`, `Paid`, `Conflict`...) et les guards (interdictions de transition).
+  * **`order.routes.js`** : Endpoints de checkout (`POST /checkout`) et webhooks de paiement.
+* **`src/modules/payment/`**
+  * **`payment.service.js`** : Abstraction du paiement.
+    * Simule la validation bancaire.
+    * Gère le cas critique "Zombie" : si le paiement arrive sur une commande `Expired`, déclenche la logique de remboursement/conflit.
+
+#### 4. Backend - Workers (Async)
+
+* **`src/workers/outbox.worker.js`** : Garant de la cohérence (Pattern Outbox).
+  * Lit périodiquement (ou via notification) la table `Outbox`.
+  * Publie les messages dans RabbitMQ.
+  * Marque les messages comme "traités" uniquement après confirmation du broker.
+* **`src/workers/expiration.worker.js`** : Nettoyeur de stock.
+  * Consomme les messages de la file "expiration".
+  * Vérifie l'état de la commande (Idempotence).
+  * Appelle `stock.service.js` pour libérer les produits si la commande n'est pas payée.
+
+#### 5. Frontend (Client)
+
+* **`src/services/api.js`** : Client HTTP (Axios). Centralise la configuration (Base URL, Timeouts) et le typage des réponses API.
+* **`src/components/Cart.vue`** : Interface Panier.
+  * Affiche les lignes calculées par le backend.
+  * Gère l'input des codes promo et l'affichage des erreurs de validation.
+* **`src/components/ProductList.vue`** : Catalogue. Permet d'ajouter au panier (déclenche l'event sourcing côté back).
+
+**Décision :**
+Responsabilités clarifiées. Chaque fichier a un rôle unique (Single Responsibility Principle), facilitant le développement parallèle et les tests.
