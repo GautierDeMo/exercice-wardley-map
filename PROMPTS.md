@@ -39,7 +39,7 @@ Mise à jour des fichiers pour conformité MD. Validation des critères de succ�
 
 ## Phase : Hypothesis
 
-### P5 - Formulation des hypothèses
+### P4 - Formulation des hypothèses
 
 **Prompt :**
 > I remove the update of PROMPTS file for the correction, it is not relevant. But thank you for doing it. Next step: can you help me and formulate 15 hypothesis about the architecture et the behavior of our future app please. I'll choose in this list and we'll keep 5. We have the obligation to cover these subjects with our hypothesis : "Réservation de stock
@@ -54,7 +54,7 @@ Proposition de 15 hypothèses techniques réparties sur 5 thèmes (Réservation 
 **Décision :**
 En attente de la sélection des 5 hypothèses à retenir.
 
-### P6 - Validation des hypothèses et Résumé de l'architecture
+### P5 - Validation des hypothèses et Résumé de l'architecture
 
 **Prompt :**
 > For the stock reservation, I want us to keep the 2nd one optimism lock. For the promotion management, I choose the PromotionService with the 4th hypothesis. For the state transition, I love the Xstate library and its hypothesis. For the Total cart sum: I want us to use the event sourcing hypothesis. And for the reservation expiration with the stock. I would like to use RabbitMQ and consumer. For the next request: could you please do a summary of every architecture we explore, for the stack, and for the hypothesis, and every other subjects we covered. I want you for this request to write the choices we made clearly in the PROMPTS file, and with a reason. You don't have to do a summary of the response you'll give me this time but you have to write it entirely without reduce the size of the response you want to give at first
@@ -101,13 +101,14 @@ L'architecture est figée. Intégration de RabbitMQ à la stack et adoption du p
 
 ## Phase : Analyse des Risques
 
-### P7 - Identification des limites et scénarios de rupture
+### P6 - Identification des limites et scénarios de rupture
 
 **Prompt :**
 > I didn't keep everything, like the P7 for correcting, it's not relevant for the diary. Now we have a model, a perimeter, invariables, constraints..., I want you to reveal me the limits if you can find limits we didn't take in account before. Is there any possible breaks in out logic, or problematic scenarios we didn't imagine
 
 **Résumé de la réponse :**
 Identification de 5 risques majeurs non couverts :
+
 1. Problème de "Dual Write" (Incohérence DB vs RabbitMQ).
 2. Versioning des règles métier avec l'Event Sourcing (changement de prix rétroactif).
 3. Concurrence sur les limites globales de promotions (Race condition).
@@ -116,3 +117,20 @@ Identification de 5 risques majeurs non couverts :
 
 **Décision :**
 Prise en compte des limites. Nécessité de prévoir des mécanismes de mitigation (Idempotence, Outbox pattern ou transactionnel, Versioning des events).
+
+### P7 - Propositions de solutions pour les limites identifiées
+
+**Prompt :**
+> Could you correct this error in l111 "MD032/blanks-around-lists: Lists should be surrounded by blank lines" and change the number of certain "P" because we have missed one, the 4. For the 5 limits, expose me multiple solutions to manage these cases please. We'll chose what to do after propositions.
+
+**Résumé de la réponse :**
+Correction du formatage (MD032) et renumérotation des prompts (P5->P4, etc.). Proposition de stratégies pour les 5 limites :
+
+1. Dual Write : Outbox Pattern vs Réconciliation.
+2. Versioning : Snapshot des prix dans l'event vs Versioning des règles.
+3. Concurrence Promo : Compteur Redis vs Verrou DB.
+4. Zombie Payment : Remboursement auto (État Conflit) vs Extension TTL.
+5. Idempotence : Vérification d'état vs Table de déduplication.
+
+**Décision :**
+En attente du choix des stratégies de mitigation.
