@@ -7,6 +7,8 @@ require('dotenv').config();
 
 const app = express();
 
+const stockRoutes = require('./modules/stock/stock.routes');
+
 // Middleware
 app.use(helmet());
 app.use(cors());
@@ -17,6 +19,9 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'Hello from Backend' });
 });
+
+// Module Routes
+app.use('/api/stock', stockRoutes);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

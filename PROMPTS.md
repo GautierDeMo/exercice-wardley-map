@@ -522,3 +522,14 @@ Génération des fichiers de configuration pour Prisma (`db.js`), Redis (`redis.
 
 **Décision :**
 Connecteurs configurés et prêts à être testés.
+
+#### P19 - Module Stock (Verrouillage Optimiste)
+
+**Prompt :**
+> Okay let's move on to the next step. The stock module. I put the files in context, do your job.
+
+**Résumé de la réponse :**
+Implémentation du `StockService` avec verrouillage optimiste via `prisma.stock.updateMany` (vérification de la version). Création des routes (`POST /reserve`, `POST /release`) et montage dans `app.js`. Ajout de tests unitaires simulant des conflits de concurrence.
+
+**Décision :**
+Module Stock implémenté et protégé contre les Race Conditions.
