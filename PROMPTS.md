@@ -478,3 +478,14 @@ Génération du `docker-compose.yml` incluant PostgreSQL, Redis et RabbitMQ (ave
 
 **Décision :**
 Infrastructure définie. Prêt pour l'initialisation du backend.
+
+#### P15 - Initialisation Backend (Express & Tests)
+
+**Prompt :**
+> Okay so we can move on to the next step, backend init. You can generate these files with tests to verify if it's functional. Also for these kind of exchanges we have, you can update the diary file PROMPTS.md
+
+**Résumé de la réponse :**
+Initialisation du serveur Express (`src/app.js`) et du fichier de dépendances (`package.json`). Création d'un test unitaire (`tests/unit/app.test.js`) pour vérifier le bon fonctionnement de l'API (Health Check).
+
+**Décision :**
+Backend initialisé et testable.
