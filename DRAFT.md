@@ -33,11 +33,6 @@ Coding, Composition)
   - le prompt exact envoyé
   - un résumé de la réponse obtenu
   - la décision suite à l'échange (ce qui a été modifié, gardé, jeté...)
-
-**Ex de format attendu :**
-
-```markdown
-## Phase : [nom de la phase]
 ### P1 - [titre court]
 **Prompt :**
 > [votre prompt exact ici]
