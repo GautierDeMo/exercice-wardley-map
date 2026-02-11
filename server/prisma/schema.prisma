@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // Not a problem because we use v6.19.2 and not v7
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id        String   @id @default(uuid())
+  title     String
+  price     Decimal
+  stock     Stock?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Stock {
+  productId String  @id
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  version   Int     @default(0) // Optimistic Locking
+}
+
+model Order {
+  id        String   @id @default(uuid())
+  status    String   // Draft, Pending, Paid, Expired, Conflict, Refunded, Prepared, Shipped
+  total     Decimal
+  items     Json     // Snapshot of items
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Outbox {
+  id          String   @id @default(uuid())
+  aggregateId String
+  type        String   // e.g., "ORDER_CREATED", "STOCK_RESERVED"
+  payload     Json
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}

@@ -489,3 +489,25 @@ Initialisation du serveur Express (`src/app.js`) et du fichier de dépendances (
 
 **Décision :**
 Backend initialisé et testable.
+
+#### P16 - Modèle de Données (Prisma)
+
+**Prompt :**
+> I rejected the update, it's not relevant for the diary, but thank you for the proposition. Let's move on with the data model and its tests please
+
+**Résumé de la réponse :**
+Définition du schéma Prisma (`schema.prisma`) incluant les modèles `Product`, `Stock` (avec versioning pour verrouillage optimiste), `Order` et `Outbox`. Création d'un test d'intégration pour valider la création de données.
+
+**Décision :**
+Modèle de données défini. Prêt pour la migration et la configuration des connecteurs.
+
+#### P17 - Correction de version Prisma (Audit Fix)
+
+**Prompt :**
+> Are we good "❯ npm i @prisma/client@6.19.2 [...] PASS tests/integration/schema.test.js" If we're good, you can add an entry for this exchange globally. The fact we update the package installation to make everything work because we needed to do some npm audit fix with the force flag
+
+**Résumé de la réponse :**
+Confirmation que les tests passent après l'alignement des versions. Le problème venait d'un `npm audit fix --force` qui avait figé la CLI Prisma en v6.19.2 alors que le client s'installait en v7. Downgrade du client `@prisma/client` en 6.19.2 pour correspondre à la CLI.
+
+**Décision :**
+Versions Prisma alignées (6.19.2). Tests d'intégration validés.
