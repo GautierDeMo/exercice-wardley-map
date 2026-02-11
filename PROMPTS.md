@@ -151,3 +151,77 @@ Confirmation des choix :
 
 **Décision :**
 Stratégies validées. Ajout de Redis à la stack technique pour gérer les compteurs atomiques.
+
+## Phase : Moldable Development
+
+### P9 - Modélisation de la Machine à États (ATM SMD)
+
+**Prompt :**
+> We enter in the moldable development phase, we want to test the logic without coding. could you please generate in text a diagram of the state machine (ATM SMD). We need to verify that every transitions are covered and every invalid transitions are explicitly forbidden. For this Prompt, I want you to update the PROMPTS file with every inch of your response. You don't have to reduce its size. It's important to see everything
+
+**Réponse complète :**
+Here is the complete State Machine Diagram (SMD) and the logic analysis for the "Moldable Development" phase.
+
+#### 1. State Machine Diagram (Mermaid)
+
+```mermaid
+stateDiagram-v2
+    state "Draft (Cart)" as Draft
+    state "Pending (Stock Reserved)" as Pending
+    state "Paid (Stock Confirmed)" as Paid
+    state "Expired (Stock Released)" as Expired
+    state "Conflict (Zombie Payment)" as Conflict
+    state "Refunded" as Refunded
+    state "Prepared" as Prepared
+    state "Shipped" as Shipped
+
+    [*] --> Draft
+    Draft --> Pending : Checkout Initiated (Stock Locked)
+
+    Pending --> Paid : Payment Success (Within TTL)
+    Pending --> Expired : TTL Timeout (RabbitMQ Event)
+
+    Expired --> Conflict : Payment Success (Late Arrival)
+    Conflict --> Refunded : Auto-Refund Process
+
+    Paid --> Prepared : Warehouse Action
+    Prepared --> Shipped : Carrier Handover
+
+    Shipped --> [*]
+    Refunded --> [*]
+    Expired --> [*] : Abandoned
+```
+
+#### 2. Transition Logic & Guards
+
+*   **Draft → Pending**
+    *   *Trigger:* User clicks "Checkout".
+    *   *Logic:* Optimistic Stock Reservation (DB Versioning) + Emit "Timer Started" event (Outbox).
+    *   *Guard:* `Stock > 0`.
+*   **Pending → Paid**
+    *   *Trigger:* Payment Provider Webhook (Success).
+    *   *Logic:* Mark Order Paid.
+    *   *Invariant:* Stock is considered permanently deducted.
+*   **Pending → Expired**
+    *   *Trigger:* RabbitMQ Delayed Message Consumer.
+    *   *Logic:* Release Stock (Increment DB).
+    *   *Guard:* Order is still `Pending`. (If `Paid`, ignore message).
+*   **Expired → Conflict (The "Zombie" Case)**
+    *   *Trigger:* Payment Provider Webhook (Success).
+    *   *Logic:* Money is received, but stock is gone. Transition to `Conflict` to flag for resolution.
+    *   *Invariant:* Cannot go to `Paid` because stock is no longer held.
+*   **Conflict → Refunded**
+    *   *Trigger:* Automatic System Process (or Admin Action).
+    *   *Logic:* Issue Refund via Payment Gateway.
+
+#### 3. Explicitly Forbidden Transitions (Safety Checks)
+
+To ensure system integrity, the XState machine must explicitly block these paths:
+
+*   **Draft → Paid**: *Security Risk.* Attempting to pay without reserving stock.
+*   **Pending → Shipped**: *Process Violation.* Skipping Payment and Preparation steps.
+*   **Paid → Expired**: *Consistency Risk.* A late RabbitMQ message must NOT release stock for a paid order. The consumer must check `if (state === 'Pending')`.
+*   **Expired → Paid**: *Inventory Risk.* Accepting an order when stock has been released to someone else. Must go to `Conflict`.
+
+**Décision :**
+The State Machine model is validated. It covers the nominal flow, the expiration flow, and the critical "Zombie Payment" edge case via the `Conflict` state.
