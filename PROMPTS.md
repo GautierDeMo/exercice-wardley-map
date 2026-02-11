@@ -1,8 +1,10 @@
 # Journal du projet
 
-## Phase : Décision
+## Red Chain
 
-### P1 - Choix de la stack et clarification des contraintes
+### Phase : Décision
+
+#### P1 - Choix de la stack et clarification des contraintes
 
 **Prompt :**
 > Hello there. We're going to start a project by using the wardley map method. The red chain and the blue chain. With the red one, we're going to chat and don't generate any code of this project. The only modification you'll need to do during this phase are in the PROMPTS.md file with the example in the DRAFT.md file. For now, we're not in any phase. I want you to suggest me three stacks with pros, cons, testability, or any criteria interesting to keep in mind. Knowing that for the front part, I am a good beginer with vue.js, and sometimes I use vanilla js instead of vue. For the back, I started PHP and Symfony, but I'm more confortable with js for back (I sometimes used Node, or Express). If you need more informations to search and compare, ask me before. Every time I ask you something. update the PROMPTS.md file with the example in the DRAFT.md file. And for this request, I will need you to update the "Stack" part of the DRAFT file when we'll choose the entire stack. I also have one question, what do you think about the third constraint "Un paiement peut être validé après expiration du stock réservé". If I understand clearly, even if the stock is not reserved, you can valid a payment. But is it not in opposition with the second constraint (Le stock doit être réservé atomiquement (pas de survente)) ? I think I misunderstand something, so if you think so, explain me this constraint please
@@ -13,7 +15,7 @@ Explication de la contrainte "Paiement après expiration" comme étant un cas li
 **Décision :**
 À définir (Choix de la stack en attente).
 
-### P2 - Définition de la stack, des invariants, du périmètre et des critères de succès
+#### P2 - Définition de la stack, des invariants, du périmètre et des critères de succès
 
 **Prompt :**
 > Step by step I will add sometimes rules to write markdown. This time I add one in the DRAFT file, so you can update the 1st prompt part and also follow all rules for this 2nd prompt. For the choice, to be able to understand what you're going to generate. We'll choose the option A. So you can update the DRAFT file and its Stack part. And we can start by listing all critical invariables for our future app. In a second step I would love to hear with the informations we have in the DRAFT.md file, what is our exact perimeter. And the third step of this request is to identify the success criteria. This is the Decision phase, to clarify the intention. Don't forget to update the PROMPTS.md file with the DRAFT rules.
@@ -24,7 +26,7 @@ Validation de la stack Option A (Vue/Express/Prisma). Identification des invaria
 **Décision :**
 Stack validée : Vue.js + Express + PostgreSQL/Prisma. Périmètre et invariants définis pour la suite.
 
-### P3 - Correction Markdown, Clarification Relance et Complétion Critères
+#### P3 - Correction Markdown, Clarification Relance et Complétion Critères
 
 **Prompt :**
 > You don't follow the MD012 rule and MD041 rule, I added the MARKDOWN_RULES.md file for you to know what you missed and to avoid the add of rule in the DRAFT.md file. You can suppress the part about markdown rules in the DRAFT file, and follow the MARDOWN_RULES file in context. What do you mean by "Recovery: Detecting abandoned carts (older than 24h) and simulating a recovery action (logs/email mock).". For me when in the exercice subject, it says "relancer les paniers après 24h". I understand that we need to reach the user in a way or another to make him/her conclude the order. And you, what did you mean? I'm telling you that you need to update the PROMPTS.md file another time, but tell me if you don't need me to do it from now. For the first line of the markdown file, we need a 1st level header, put the best title for this PROMPTS.md file please. For the response about the invariables, perimeter, and success criteria: I agree with all of your thoughts. But have we really all of the success criteria the base subject implies? If yes, we're good, and we can move to the next step. If no, don't hesitate to write it into the next response please
@@ -35,9 +37,9 @@ Correction des règles MD (MD012, MD041). Clarification sur la "Relance panier" 
 **Décision :**
 Mise à jour des fichiers pour conformité MD. Validation des critères de succès étendus.
 
-## Phase : Hypothesis
+### Phase : Hypothesis
 
-### P4 - Formulation des hypothèses
+#### P4 - Formulation des hypothèses
 
 **Prompt :**
 > I remove the update of PROMPTS file for the correction, it is not relevant. But thank you for doing it. Next step: can you help me and formulate 15 hypothesis about the architecture et the behavior of our future app please. I'll choose in this list and we'll keep 5. We have the obligation to cover these subjects with our hypothesis : "Réservation de stock
@@ -52,9 +54,9 @@ Proposition de 15 hypothèses techniques réparties sur 5 thèmes (Réservation 
 **Décision :**
 En attente de la sélection des 5 hypothèses à retenir.
 
-## Phase : Exploration
+### Phase : Exploration
 
-### P5 - Validation des hypothèses et Résumé de l'architecture
+#### P5 - Validation des hypothèses et Résumé de l'architecture
 
 **Prompt :**
 > For the stock reservation, I want us to keep the 2nd one optimism lock. For the promotion management, I choose the PromotionService with the 4th hypothesis. For the state transition, I love the Xstate library and its hypothesis. For the Total cart sum: I want us to use the event sourcing hypothesis. And for the reservation expiration with the stock. I would like to use RabbitMQ and consumer. For the next request: could you please do a summary of every architecture we explore, for the stack, and for the hypothesis, and every other subjects we covered. I want you for this request to write the choices we made clearly in the PROMPTS file, and with a reason. You don't have to do a summary of the response you'll give me this time but you have to write it entirely without reduce the size of the response you want to give at first
@@ -99,9 +101,9 @@ Voici le récapitulatif complet des choix architecturaux et techniques validés 
 **Décision :**
 L'architecture est figée. Intégration de RabbitMQ à la stack et adoption du pattern Event Sourcing pour le panier.
 
-## Phase : Conversation
+### Phase : Conversation
 
-### P6 - Identification des limites et scénarios de rupture
+#### P6 - Identification des limites et scénarios de rupture
 
 **Prompt :**
 > I didn't keep everything, like the P7 for correcting, it's not relevant for the diary. Now we have a model, a perimeter, invariables, constraints..., I want you to reveal me the limits if you can find limits we didn't take in account before. Is there any possible breaks in out logic, or problematic scenarios we didn't imagine
@@ -118,7 +120,7 @@ Identification de 5 risques majeurs non couverts :
 **Décision :**
 Prise en compte des limites. Nécessité de prévoir des mécanismes de mitigation (Idempotence, Outbox pattern ou transactionnel, Versioning des events).
 
-### P7 - Propositions de solutions pour les limites identifiées
+#### P7 - Propositions de solutions pour les limites identifiées
 
 **Prompt :**
 > Could you correct this error in l111 "MD032/blanks-around-lists: Lists should be surrounded by blank lines" and change the number of certain "P" because we have missed one, the 4. For the 5 limits, expose me multiple solutions to manage these cases please. We'll chose what to do after propositions.
@@ -135,7 +137,7 @@ Correction du formatage (MD032) et renumérotation des prompts (P5->P4, etc.). P
 **Décision :**
 En attente du choix des stratégies de mitigation.
 
-### P8 - Choix des stratégies de mitigation et Ajout de Redis
+#### P8 - Choix des stratégies de mitigation et Ajout de Redis
 
 **Prompt :**
 > For the first and second risk, I agree with your recommended options. Also for the 4th and 5th risk, recommended option are good. But for the global promo limits I think even if the solution is hard, the best is the option A. Tell me which options is the most suitable.
@@ -152,9 +154,9 @@ Confirmation des choix :
 **Décision :**
 Stratégies validées. Ajout de Redis à la stack technique pour gérer les compteurs atomiques.
 
-## Phase : Moldable Development
+### Phase : Moldable Development
 
-### P9 - Modélisation de la Machine à États (ATM SMD)
+#### P9 - Modélisation de la Machine à États (ATM SMD)
 
 **Prompt :**
 > We enter in the moldable development phase, we want to test the logic without coding. could you please generate in text a diagram of the state machine (ATM SMD). We need to verify that every transitions are covered and every invalid transitions are explicitly forbidden. For this Prompt, I want you to update the PROMPTS file with every inch of your response. You don't have to reduce its size. It's important to see everything
@@ -226,9 +228,9 @@ To ensure system integrity, the XState machine must explicitly block these paths
 **Décision :**
 The State Machine model is validated. It covers the nominal flow, the expiration flow, and the critical "Zombie Payment" edge case via the `Conflict` state.
 
-## Phase : Model Centric
+### Phase : Model Centric
 
-### P10 - Définition de l'arborescence du projet
+#### P10 - Définition de l'arborescence du projet
 
 **Prompt :**
 > It's not the first time for this rules and you to forget it "MD030/list-marker-space: Spaces after list markers [Expected: 1; Actual: 3]". Add it in your reminder of the DRAFT file please. But I'm good with your logic, diagram, and your response globally. Now I want you to fix our architecture, with all files we need, test files, and other files. I want you to write a snapshot of what our app repo will look.
@@ -291,7 +293,7 @@ Ajout de la règle MD030 dans DRAFT.md. Proposition d'une structure de projet "M
 **Décision :**
 Structure validée pour supporter les contraintes techniques (Workers, Modules isolés).
 
-### P11 - Définition détaillée des responsabilités par composant
+#### P11 - Définition détaillée des responsabilités par composant
 
 **Prompt :**
 > Next step for the Model Centric phase. I want you tu list every responsibilities for every file or component please. For this entry in the PROMPTS file, you can write all of your response in the diary. It's important for what's next
@@ -353,7 +355,7 @@ Voici la liste exhaustive des responsabilités pour chaque fichier et composant 
 **Décision :**
 Responsabilités clarifiées. Chaque fichier a un rôle unique (Single Responsibility Principle), facilitant le développement parallèle et les tests.
 
-### P12 - Codified Invariants (Mapping Classes <-> Rules)
+#### P12 - Codified Invariants (Mapping Classes <-> Rules)
 
 **Prompt :**
 > Now, final step of model centric phase: I want you to list codified invariables (what classes guaranty what rules). You can add all of your response in the diary, it's important for next steps.
@@ -398,3 +400,49 @@ Voici le mapping précis entre les règles métier (invariants) et les composant
 
 **Décision :**
 Les responsabilités de chaque invariant sont clairement attribuées. Nous pouvons passer à la phase de génération de code.
+
+## Blue Chain
+
+### Phase : Generation
+
+#### P13 - Plan de génération et Initialisation du squelette
+
+**Prompt :**
+> We pass to the Generated Phase. It's the first phase of the blue chain. Could you please add the red chain on top of the file, just before the first phase. And the blue chain just before the Generated phase that is arriving with this request. Before begin the coding generation, I want you to do a list I have to follow to ask you to code. This list needs to follow the architecture we agreed on before. I want to ask you to write code step by step, file by file. I always want to test the file at the end of the generation. And doing it step by step is the best way to verify if it's working. With the list of steps to follow, I want also every indications you'll give me to create this project. I don't want the commands on this response. But I want you to write that you need to give me these commands every time you produce a file who needs to write a command in the shell. With it you can produce every file and folder of our project. But every file empty of course. And for the entry of the diary. This time too, you can write all of your response in it. It will be useful for us after
+
+**Réponse complète :**
+Voici le plan d'action étape par étape pour la phase de génération, ainsi que la mise en place de la structure du projet.
+
+#### 1. Mise à jour du Journal (Red/Blue Chains)
+
+Les chaînes ont été ajoutées pour séparer les phases de conception (Red) et de réalisation (Blue).
+
+#### 2. Plan de Génération (Step-by-Step)
+
+Nous suivrons cet ordre précis pour garantir la testabilité à chaque étape :
+
+1. **Infrastructure :** Création du `docker-compose.yml` (Postgres, RabbitMQ, Redis) et des variables d'environnement. *Test : Lancement des conteneurs.*
+2. **Initialisation Backend :** `package.json`, `src/app.js` et configuration de base. *Test : Serveur Express qui répond "Hello".*
+3. **Modèle de Données :** `prisma/schema.prisma`. *Test : Génération du client Prisma et migration DB.*
+4. **Configuration Connecteurs :** `db.js`, `rabbitmq.js`, `redis.js`. *Test : Connexion réussie aux services.*
+5. **Module Stock :** `stock.service.js` (Verrouillage Optimiste) et routes. *Test : Tests unitaires de réservation concurrente.*
+6. **Module Cart :** `cart.service.js` (Event Sourcing) et routes. *Test : Ajout d'items et calcul du total.*
+7. **Module Order (Machine à États) :** `order.machine.js` et routes. *Test : Transitions valides et invalides (XState).*
+8. **Module Payment (Zombie Killer) :** `payment.service.js`. *Test : Simulation paiement après expiration.*
+9. **Workers Asynchrones :** `outbox.worker.js` et `expiration.worker.js`. *Test : Vérification du cycle de vie complet (Réservation -> Expiration -> Libération).*
+10. **Frontend Setup :** Initialisation Vue.js + Vite. *Test : Page d'accueil.*
+11. **Frontend Components :** Intégration API dans `Cart.vue` et `ProductList.vue`. *Test : Parcours utilisateur complet.*
+
+#### 3. Consignes de Génération
+
+Pour chaque fichier généré, je fournirai systématiquement :
+
+* Le code complet du fichier.
+* Les commandes shell nécessaires (création de fichier, installation de dépendances, exécution de tests).
+
+#### 4. Initialisation du Squelette
+
+La structure complète des dossiers et fichiers vides a été générée conformément à l'architecture validée.
+
+**Décision :**
+Passage à la Blue Chain (Génération). Plan d'action validé et squelette du projet créé.
