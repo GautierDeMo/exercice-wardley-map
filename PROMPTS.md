@@ -599,3 +599,14 @@ Implémentation de la couche service `api.js` (Axios) pour communiquer avec le b
 
 **Décision :**
 Frontend fonctionnel et connecté à l'API Backend.
+
+#### P26 - Correction Bug Frontend (Chargement Panier)
+
+**Prompt :**
+> I think we're good, I can see http requests in my server side nodemon. And for the front I can add to cart one of the three products, and checkout, it creates an order with a status pending. But if I refresh, it's loading cart and only this. Is that normal?
+
+**Résumé de la réponse :**
+Correction d'un bug dans `Cart.vue` : le watcher sur `cartId` ne se déclenchait pas à l'initialisation du composant. Ajout de l'option `{ immediate: true }` pour charger le panier dès l'affichage. Clarification sur le fait que le panier est recréé à chaque rafraîchissement (comportement attendu pour cette démo sans persistance locale).
+
+**Décision :**
+Bug d'affichage corrigé.

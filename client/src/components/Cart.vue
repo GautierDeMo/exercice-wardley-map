@@ -22,7 +22,7 @@ const fetchCart = async () => {
 // Expose fetchCart to parent
 defineExpose({ fetchCart });
 
-watch(() => props.cartId, fetchCart);
+watch(() => props.cartId, fetchCart, { immediate: true });
 
 const checkout = async () => {
   if (!cart.value) return;
