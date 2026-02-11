@@ -678,3 +678,14 @@ Correction du formatage MD032 dans P30. Implémentation du `PromotionService` av
 
 **Décision :**
 Module Promotions implémenté et intégré au calcul du panier.
+
+#### P32 - Relance Panier Abandonné (Email Mock)
+
+**Prompt :**
+> Are we good you think? "❯ npm test tests/unit/promotion.service.test.js tests/unit/cart.service.test.js [...] PASS". If yes, we can pass to the last step, with cart relance. Also with tests, and everything we need to have a good and working app
+
+**Résumé de la réponse :**
+Confirmation du succès des tests précédents. Implémentation de la fonctionnalité de relance panier : création d'un `EmailService` (mock) et intégration dans `expiration.worker.js`. Lorsqu'une commande expire (timeout RabbitMQ), un "email" est désormais envoyé (logué). Ajout d'un test unitaire pour le service d'email.
+
+**Décision :**
+Fonctionnalité de relance implémentée. Le périmètre fonctionnel initial est désormais entièrement couvert.
