@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  // Not a problem because we use v6.19.2 and not v7
   url      = env("DATABASE_URL")
 }
 

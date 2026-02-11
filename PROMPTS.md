@@ -511,3 +511,14 @@ Confirmation que les tests passent après l'alignement des versions. Le problèm
 
 **Décision :**
 Versions Prisma alignées (6.19.2). Tests d'intégration validés.
+
+#### P18 - Configuration des Connecteurs (DB, Redis, RabbitMQ)
+
+**Prompt :**
+> Now we can move on to the next step, connectors configuration. You can create an entry in the diary for this exchange of course. And go on, generate the code for these files, the tests also, and drive me to do the tests
+
+**Résumé de la réponse :**
+Génération des fichiers de configuration pour Prisma (`db.js`), Redis (`redis.js`) et RabbitMQ (`rabbitmq.js` avec assertion de l'exchange retardé). Création d'un test d'intégration global (`tests/integration/connectors.test.js`) pour valider la connectivité avec l'infrastructure Docker.
+
+**Décision :**
+Connecteurs configurés et prêts à être testés.
