@@ -577,3 +577,14 @@ Correction du fichier de test `stock.service.test.js` pour mocker correctement `
 
 **Décision :**
 Tests unitaires réparés et alignés avec l'implémentation transactionnelle.
+
+#### P24 - Initialisation Frontend (Vue.js + Vite)
+
+**Prompt :**
+> We're good [...]. We can move on to the frontend setup please. Unless it's needed to do all tests to check if everything we went through hadn't break anything? Tell me or generate the setup for the frontend
+
+**Résumé de la réponse :**
+Conseil de lancer `npm test` côté serveur pour sécurité. Génération de la configuration Frontend : `package.json` (Vue, Axios), `vite.config.js` (Proxy API vers port 3000), `index.html` et point d'entrée `main.js`/`App.vue`.
+
+**Décision :**
+Frontend initialisé. Prêt pour l'intégration des composants.
