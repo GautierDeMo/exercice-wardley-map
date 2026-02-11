@@ -18,7 +18,9 @@
 
 ## Stack
 
-- A définir
+- Frontend : Vue.js (Vite)
+- Backend : Express.js
+- Base de données : PostgreSQL (via Prisma ORM)
 
 ## Livrables du projet
 
@@ -46,3 +48,4 @@ Coding, Composition)
 ### Règles markdown du fichier PROMPT.md à ne pas oublier
 
 - les headers ont des saut de ligne au dessus et en dessous d'eux
+- globalement, il faut suivre les règles de markdownlint, de DavidAnson
