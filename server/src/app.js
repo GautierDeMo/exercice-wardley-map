@@ -8,6 +8,7 @@ require('dotenv').config();
 const app = express();
 
 const stockRoutes = require('./modules/stock/stock.routes');
+const cartRoutes = require('./modules/cart/cart.routes');
 
 // Middleware
 app.use(helmet());
@@ -22,6 +23,7 @@ app.get('/', (req, res) => {
 
 // Module Routes
 app.use('/api/stock', stockRoutes);
+app.use('/api/cart', cartRoutes);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

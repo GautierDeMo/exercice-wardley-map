@@ -533,3 +533,14 @@ Implémentation du `StockService` avec verrouillage optimiste via `prisma.stock.
 
 **Décision :**
 Module Stock implémenté et protégé contre les Race Conditions.
+
+#### P20 - Module Cart (Event Sourcing)
+
+**Prompt :**
+> Here are the logs "❯ npm test tests/unit/stock.service.test.js [...] PASS tests/unit/stock.service.test.js", we're good. If yes, you can continue with the next module: cart
+
+**Résumé de la réponse :**
+Mise à jour du schéma Prisma pour inclure `Cart` et `CartEvent`. Implémentation du `CartService` utilisant le pattern Event Sourcing : les méthodes d'écriture (`addItem`) stockent des événements, et la lecture (`getCart`) rejoue ces événements pour reconstruire l'état (items, total). Ajout des routes et tests unitaires associés.
+
+**Décision :**
+Module Cart implémenté avec persistance des événements.

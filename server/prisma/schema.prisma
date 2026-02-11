@@ -40,3 +40,19 @@ model Outbox {
   published   Boolean  @default(false)
   createdAt   DateTime @default(now())
 }
+
+model Cart {
+  id        String      @id @default(uuid())
+  events    CartEvent[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model CartEvent {
+  id        String   @id @default(uuid())
+  cartId    String
+  cart      Cart     @relation(fields: [cartId], references: [id])
+  type      String   // ITEM_ADDED, PROMO_APPLIED
+  payload   Json
+  createdAt DateTime @default(now())
+}
