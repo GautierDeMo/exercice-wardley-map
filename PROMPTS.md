@@ -652,3 +652,17 @@ Identification de la cause : les workers (`outbox` et `expiration`) n'étaient p
 
 **Décision :**
 Workers intégrés au cycle de vie de l'application (Monolithe).
+
+#### P30 - Validation finale des flux (Happy & Zombie Paths)
+
+**Prompt :**
+> I saw the expiring order log, even if I didn't restart the server. Because of nodemon I think. And I confirm that we can have paid, draft, expired, OR conflict. We're good or is there something missing?
+
+**Résumé de la réponse :**
+Confirmation que `nodemon` a redémarré le serveur automatiquement. Validation par l'utilisateur des états `Draft`, `Paid`, `Expired` et `Conflict`.
+Identification des fonctionnalités restantes pour compléter le périmètre initial :
+1. **Module Promotions :** Logique d'application, incompatibilités et limites globales (Redis).
+2. **Relance Panier (Recovery) :** Simulation d'envoi d'email lors de l'expiration.
+
+**Décision :**
+Core features validées. Passage à l'implémentation des fonctionnalités "Bonus" / "Métier avancées" (Promotions).
