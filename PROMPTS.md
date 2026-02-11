@@ -352,3 +352,49 @@ Voici la liste exhaustive des responsabilités pour chaque fichier et composant 
 
 **Décision :**
 Responsabilités clarifiées. Chaque fichier a un rôle unique (Single Responsibility Principle), facilitant le développement parallèle et les tests.
+
+### P12 - Codified Invariants (Mapping Classes <-> Rules)
+
+**Prompt :**
+> Now, final step of model centric phase: I want you to list codified invariables (what classes guaranty what rules). You can add all of your response in the diary, it's important for next steps.
+
+**Réponse complète :**
+Voici le mapping précis entre les règles métier (invariants) et les composants techniques qui les garantissent :
+
+#### 1. Atomicité du Stock (Pas de survente)
+
+* **Garant :** `src/modules/stock/stock.service.js` + `Prisma Schema`
+* **Mécanisme :** Utilise le verrouillage optimiste via une clause `WHERE version = current_version` lors de l'update en base. Si la version a changé (concurrence), la transaction échoue.
+
+#### 2. Cohérence des États de Commande
+
+* **Garant :** `src/modules/order/order.machine.js` (XState)
+* **Mécanisme :** La machine à états définit strictement les transitions autorisées.
+  * *Exemple :* Impossible de passer de `Draft` à `Shipped` sans passer par `Paid` et `Prepared`.
+  * *Exemple :* Impossible de passer de `Expired` à `Paid` (force la transition vers `Conflict`).
+
+#### 3. Intégrité du Calcul Panier (Prix & Promos)
+
+* **Garant :** `src/modules/cart/cart.service.js` (Event Sourcing)
+* **Mécanisme :** Le total n'est jamais stocké comme une valeur mutable simple. Il est toujours recalculé en rejouant la séquence d'événements (`item_added`, `promo_applied`), garantissant que le total correspond toujours exactement au contenu.
+
+#### 4. Exclusivité et Limites des Promotions
+
+* **Garant (Logique) :** `src/modules/cart/promotion.service.js`
+* **Garant (Concurrence) :** `src/config/redis.js`
+* **Mécanisme :**
+  * Le service vérifie les règles d'incompatibilité (ex: "Promo A ne fonctionne pas avec Promo B").
+  * Redis assure l'incrémentation atomique pour les limites globales (ex: "Premiers 100 utilisateurs seulement").
+
+#### 5. Fiabilité des Événements (Pas de perte de message)
+
+* **Garant :** `src/workers/outbox.worker.js` + `Prisma Transaction`
+* **Mécanisme :** Pattern Outbox. L'événement "Stock Réservé" est écrit dans la même transaction SQL que la réservation. Le worker assure que le message est bien délivré à RabbitMQ (At-least-once delivery).
+
+#### 6. Gestion du "Zombie Payment" (Paiement hors délai)
+
+* **Garant :** `src/modules/payment/payment.service.js`
+* **Mécanisme :** Lors de la réception du webhook de paiement, le service interroge l'état actuel de la commande. Si l'état est `Expired`, il déclenche automatiquement le flux de remboursement/conflit au lieu de valider la commande.
+
+**Décision :**
+Les responsabilités de chaque invariant sont clairement attribuées. Nous pouvons passer à la phase de génération de code.
