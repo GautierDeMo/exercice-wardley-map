@@ -610,3 +610,33 @@ Correction d'un bug dans `Cart.vue` : le watcher sur `cartId` ne se déclenchait
 
 **Décision :**
 Bug d'affichage corrigé.
+
+#### P27 - Vérification des fonctionnalités et identification des manquants
+
+**Prompt :**
+> We're good, I see Your cart and not Loading...
+> Have you any other things I need to verify to check if our app is running with every features we statued at the beginning of this project?
+
+**Résumé de la réponse :**
+Confirmation que le bug frontend est résolu. Point sur l'état d'avancement :
+
+1. **Fonctionnel :** Panier, Commande, Réservation Stock, Expiration (Logs serveur), Machine à états.
+2. **À vérifier manuellement :** Le flux "Zombie Payment" (nécessite un appel API manuel pour l'instant).
+3. **Manquant :** Le module **Promotions** (prévu mais non généré) et un moyen simple de simuler le paiement depuis l'UI.
+
+**Décision :**
+Identification des prochaines étapes : Implémentation des Promotions ou Simulation de Paiement.
+
+#### P28 - Vérification DB (Paid & Conflict) et Correction MD
+
+**Prompt :**
+> With order id on the server logs, it's ok I got this "❯ curl -X POST <http://localhost:3000/api/orders/63560ea9-9c00-488f-b33b-41af96cad1d0/payment-webhook> [...]". I have also check the insufficient stock. But not the paid, and conflict. What have I to do with the db to verify it? When we'll finish this, we'll see to implement Promotion service and the abandoned cart recovery. First verifications! Also you didn't follow the MD032 rule for the P27 and the MD030 rule also... If you can fix it btw
+
+**Résumé de la réponse :**
+Correction du formatage Markdown de P27 (MD030/MD032).
+Explication pour vérifier les états en base (via `npx prisma studio` ou SQL) :
+* **Paid :** `Order.status = 'Paid'` et `Stock.quantity` décrémenté (réservation confirmée).
+* **Conflict :** Simuler un paiement *après* le log d'expiration. `Order.status` doit passer à `Conflict` (car stock déjà libéré). `Stock.quantity` doit être revenu à l'initial.
+
+**Décision :**
+Vérifications manuelles en cours. Prêt pour l'implémentation des Promotions.
