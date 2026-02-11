@@ -661,8 +661,20 @@ Workers intégrés au cycle de vie de l'application (Monolithe).
 **Résumé de la réponse :**
 Confirmation que `nodemon` a redémarré le serveur automatiquement. Validation par l'utilisateur des états `Draft`, `Paid`, `Expired` et `Conflict`.
 Identification des fonctionnalités restantes pour compléter le périmètre initial :
+
 1. **Module Promotions :** Logique d'application, incompatibilités et limites globales (Redis).
 2. **Relance Panier (Recovery) :** Simulation d'envoi d'email lors de l'expiration.
 
 **Décision :**
 Core features validées. Passage à l'implémentation des fonctionnalités "Bonus" / "Métier avancées" (Promotions).
+
+#### P31 - Module Promotions (Service & Redis)
+
+**Prompt :**
+> Another time you missed the MD032 rule, it's really boring. You can begin with the promotions module. Create the files needed, or update it. Don't forget the tests. And we can move forward
+
+**Résumé de la réponse :**
+Correction du formatage MD032 dans P30. Implémentation du `PromotionService` avec validation des codes et gestion des limites globales via Redis (`INCR`). Mise à jour du `CartService` pour gérer l'événement `PROMO_APPLIED` et calculer le `finalTotal`. Ajout de la route `POST /promo` et des tests unitaires associés.
+
+**Décision :**
+Module Promotions implémenté et intégré au calcul du panier.

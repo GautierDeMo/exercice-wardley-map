@@ -32,4 +32,14 @@ router.post('/:id/items', async (req, res) => {
   }
 });
 
+router.post('/:id/promo', async (req, res) => {
+  try {
+    const { code } = req.body;
+    const cart = await cartService.applyPromotion(req.params.id, code);
+    res.json(cart);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 module.exports = router;

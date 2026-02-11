@@ -1,4 +1,5 @@
 const prisma = require('../../config/db');
+const promotionService = require('./promotion.service');
 
 class CartService {
   async createCart() {
@@ -17,6 +18,25 @@ class CartService {
     });
   }
 
+  async applyPromotion(cartId, code) {
+    // 1. Validate Promo
+    const promo = await promotionService.validatePromotion(code);
+
+    // 2. Store Event
+    await prisma.cartEvent.create({
+      data: {
+        cartId,
+        type: 'PROMO_APPLIED',
+        payload: { code, ...promo }
+      }
+    });
+
+    // 3. Increment Global Usage (Side Effect)
+    await promotionService.incrementUsage(code);
+
+    return this.getCart(cartId);
+  }
+
   async getCart(cartId) {
     const cart = await prisma.cart.findUnique({
       where: { id: cartId },
@@ -28,7 +48,10 @@ class CartService {
     // --- Event Replay & State Reconstruction ---
     const state = {
       items: [],
-      total: 0
+      total: 0,
+      discount: 0,
+      finalTotal: 0,
+      appliedPromo: null
     };
 
     for (const event of cart.events) {
@@ -41,12 +64,20 @@ class CartService {
         } else {
           state.items.push({ productId, quantity, price });
         }
+      } else if (event.type === 'PROMO_APPLIED') {
+        state.appliedPromo = event.payload;
       }
-      // Future: Handle 'ITEM_REMOVED', 'PROMO_APPLIED'
     }
 
     // Calculate Total
     state.total = state.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+    // Calculate Discount
+    if (state.appliedPromo) {
+      state.discount = promotionService.calculateDiscount(state.total, state.appliedPromo);
+    }
+
+    state.finalTotal = Math.max(0, state.total - state.discount);
 
     return { id: cartId, ...state };
   }
