@@ -11,6 +11,7 @@ const stockRoutes = require('./modules/stock/stock.routes');
 const cartRoutes = require('./modules/cart/cart.routes');
 const orderRoutes = require('./modules/order/order.routes');
 const { connectRabbitMQ } = require('./config/rabbitmq');
+const { connectRedis } = require('./config/redis');
 const { startExpirationWorker } = require('./workers/expiration.worker');
 const { processOutbox } = require('./workers/outbox.worker');
 
@@ -42,6 +43,7 @@ if (require.main === module) {
 
   const init = async () => {
     try {
+      await connectRedis();
       await connectRabbitMQ();
       await startExpirationWorker();
       setInterval(processOutbox, 1000); // Poll Outbox every 1s

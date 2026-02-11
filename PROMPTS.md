@@ -689,3 +689,25 @@ Confirmation du succès des tests précédents. Implémentation de la fonctionna
 
 **Décision :**
 Fonctionnalité de relance implémentée. Le périmètre fonctionnel initial est désormais entièrement couvert.
+
+#### P33 - Intégration Frontend des Promotions
+
+**Prompt :**
+> I think we're good. [...] Here was the logs. Now we need to add the promotion feature into the front side to allow the user to enter a promo code. Can you do it by following our way of doing it since the beginning of our project please
+
+**Résumé de la réponse :**
+Mise à jour du service frontend `api.js` pour inclure la méthode `applyPromotion`. Modification du composant `Cart.vue` pour ajouter un champ de saisie de code promo, un bouton d'application, et l'affichage du détail des prix (Sous-total, Réduction, Total Final).
+
+**Décision :**
+Frontend complet avec gestion des promotions.
+
+#### P34 - Correction Bug Redis (Client Closed)
+
+**Prompt :**
+> I've got this message "invalid Code: The client is closed". I think there is a problem somewhere. Could you please address me a fix
+
+**Résumé de la réponse :**
+Le message d'erreur indique que le client Redis n'est pas connecté lors de l'appel (v4 de node-redis nécessite une connexion explicite). Ajout de l'appel `connectRedis()` dans la fonction d'initialisation de `server/src/app.js`, similaire à ce qui a été fait pour RabbitMQ.
+
+**Décision :**
+Connexion Redis initialisée au démarrage du serveur.

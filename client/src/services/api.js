@@ -23,6 +23,9 @@ export default {
   addItemToCart(cartId, { productId, quantity, price }) {
     return api.post(`/cart/${cartId}/items`, { productId, quantity, price });
   },
+  applyPromotion(cartId, code) {
+    return api.post(`/cart/${cartId}/promo`, { code });
+  },
 
   // Order
   createOrder(cartId) {
