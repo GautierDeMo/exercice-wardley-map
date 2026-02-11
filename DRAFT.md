@@ -1,5 +1,9 @@
 # Draft
 
+## Rappel Règles Markdown (CRITIQUE)
+
+- **MD032** : Toujours mettre une ligne vide avant et après une liste (ordonnée ou non).
+
 ## Workflow
 
 - Créer une commande à partir d'un panier

@@ -142,6 +142,7 @@ En attente du choix des stratégies de mitigation.
 
 **Résumé de la réponse :**
 Confirmation des choix :
+
 1. Dual Write -> Outbox Pattern.
 2. Versioning -> Snapshotting des valeurs.
 3. Concurrence Promo -> Redis Atomic Counter (Option A).
