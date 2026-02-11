@@ -225,3 +225,68 @@ To ensure system integrity, the XState machine must explicitly block these paths
 
 **Décision :**
 The State Machine model is validated. It covers the nominal flow, the expiration flow, and the critical "Zombie Payment" edge case via the `Conflict` state.
+
+## Phase : Architecture & Structure
+
+### P10 - Définition de l'arborescence du projet
+
+**Prompt :**
+> It's not the first time for this rules and you to forget it "MD030/list-marker-space: Spaces after list markers [Expected: 1; Actual: 3]". Add it in your reminder of the DRAFT file please. But I'm good with your logic, diagram, and your response globally. Now I want you to fix our architecture, with all files we need, test files, and other files. I want you to write a snapshot of what our app repo will look.
+
+**Résumé de la réponse :**
+Ajout de la règle MD030 dans DRAFT.md. Proposition d'une structure de projet "Monorepo" séparant clairement le Frontend (Vue) et le Backend (Express modulaire).
+
+**Snapshot de l'architecture :**
+
+```text
+.
+├── PROMPTS.md
+├── DRAFT.md
+├── MARKDOWN_RULES.md
+├── docker-compose.yml          # Postgres, RabbitMQ, Redis
+├── .gitignore
+├── client/                     # Frontend Vue.js
+│   ├── index.html
+│   ├── package.json
+│   ├── vite.config.js
+│   └── src/
+│       ├── main.js
+│       ├── App.vue
+│       ├── components/
+│       │   ├── Cart.vue
+│       │   └── ProductList.vue
+│       └── services/
+│           └── api.js
+└── server/                     # Backend Express "Micro-outils"
+    ├── package.json
+    ├── .env.example
+    ├── prisma/
+    │   └── schema.prisma       # DB Schema (Stock, Order, Outbox)
+    ├── src/
+    │   ├── app.js              # Entry point
+    │   ├── config/
+    │   │   ├── db.js           # Prisma Client
+    │   │   ├── rabbitmq.js     # RabbitMQ Connection
+    │   │   └── redis.js        # Redis Connection
+    │   ├── modules/            # Domain Driven Design / Micro-tools
+    │   │   ├── cart/
+    │   │   │   ├── cart.service.js      # Event Sourcing Logic
+    │   │   │   └── cart.routes.js
+    │   │   ├── stock/
+    │   │   │   ├── stock.service.js     # Optimistic Locking
+    │   │   │   └── stock.routes.js
+    │   │   ├── order/
+    │   │   │   ├── order.machine.js     # XState Machine
+    │   │   │   └── order.routes.js
+    │   │   └── payment/
+    │   │       └── payment.service.js   # Zombie handling
+    │   └── workers/
+    │       ├── expiration.worker.js     # RabbitMQ Consumer
+    │       └── outbox.worker.js         # DB -> RabbitMQ Publisher
+    └── tests/
+        ├── integration/
+        └── unit/
+```
+
+**Décision :**
+Structure validée pour supporter les contraintes techniques (Workers, Modules isolés).
