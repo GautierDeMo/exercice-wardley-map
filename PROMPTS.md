@@ -36,3 +36,20 @@ Correction des règles MD (MD012, MD041). Clarification sur la "Relance panier" 
 
 **Décision :**
 Mise à jour des fichiers pour conformité MD. Validation des critères de succès étendus.
+
+## Phase : Hypothesis
+
+### P5 - Formulation des hypothèses
+
+**Prompt :**
+> I remove the update of PROMPTS file for the correction, it is not relevant. But thank you for doing it. Next step: can you help me and formulate 15 hypothesis about the architecture et the behavior of our future app please. I'll choose in this list and we'll keep 5. We have the obligation to cover these subjects with our hypothesis : "Réservation de stock
+> Gestion des promotions
+> Transitions d'état
+> Centralisation du calcul du total
+> Expiration des réservations". It's the Hypothesis Drive phase if I'm correct.
+
+**Résumé de la réponse :**
+Proposition de 15 hypothèses techniques réparties sur 5 thèmes (Réservation de stock, Promotions, Transitions d'état, Calcul du total, Expiration des réservations) avec différentes approches (ex: optimistic vs pessimistic locking, state machine vs service logic, cron vs message queue).
+
+**Décision :**
+En attente de la sélection des 5 hypothèses à retenir.
