@@ -635,8 +635,20 @@ Identification des prochaines étapes : Implémentation des Promotions ou Simula
 **Résumé de la réponse :**
 Correction du formatage Markdown de P27 (MD030/MD032).
 Explication pour vérifier les états en base (via `npx prisma studio` ou SQL) :
+
 * **Paid :** `Order.status = 'Paid'` et `Stock.quantity` décrémenté (réservation confirmée).
 * **Conflict :** Simuler un paiement *après* le log d'expiration. `Order.status` doit passer à `Conflict` (car stock déjà libéré). `Stock.quantity` doit être revenu à l'initial.
 
 **Décision :**
 Vérifications manuelles en cours. Prêt pour l'implémentation des Promotions.
+
+#### P29 - Démarrage des Workers et Correction MD
+
+**Prompt :**
+> I can find in prisma studio when it's paid, but I never have the log expiring order. Do you know why? Even after 1mn after clicked checkout. ANd you another time forget the MD032 rule for unordered lists... Fix it for the 28th
+
+**Résumé de la réponse :**
+Identification de la cause : les workers (`outbox` et `expiration`) n'étaient pas démarrés dans `app.js`. Modification de `server/src/app.js` pour initialiser RabbitMQ, lancer le consumer d'expiration et la boucle de polling de l'outbox au démarrage du serveur. Correction du formatage MD032 dans l'entrée P28.
+
+**Décision :**
+Workers intégrés au cycle de vie de l'application (Monolithe).
