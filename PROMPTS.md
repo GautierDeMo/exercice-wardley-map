@@ -444,5 +444,24 @@ Pour chaque fichier généré, je fournirai systématiquement :
 
 La structure complète des dossiers et fichiers vides a été générée conformément à l'architecture validée.
 
+#### 5. Stratégie de Contexte (Fichiers nécessaires)
+
+Pour travailler efficacement, voici les fichiers que je dois avoir en contexte à chaque interaction :
+
+* **Permanents :** `DRAFT.md`, `PROMPTS.md`, `MARKDOWN_RULES.md` (car je mets à jour le journal à chaque étape et dois respecter le formatage).
+
+* **Par Étape (Big Picture) :**
+  1. **Infrastructure :** `docker-compose.yml`.
+  2. **Initialisation Backend :** `server/package.json`, `server/src/app.js`.
+  3. **Modèle de Données :** `server/prisma/schema.prisma`.
+  4. **Configuration Connecteurs :** `server/src/config/db.js`, `server/src/config/rabbitmq.js`, `server/src/config/redis.js`.
+  5. **Module Stock :** `server/src/modules/stock/stock.service.js`, `server/src/modules/stock/stock.routes.js`, `server/prisma/schema.prisma`.
+  6. **Module Cart :** `server/src/modules/cart/cart.service.js`, `server/src/modules/cart/cart.routes.js`, `server/prisma/schema.prisma`.
+  7. **Module Order :** `server/src/modules/order/order.machine.js`, `server/src/modules/order/order.routes.js`, `server/prisma/schema.prisma`.
+  8. **Module Payment :** `server/src/modules/payment/payment.service.js`, `server/prisma/schema.prisma`.
+  9. **Workers :** `server/src/workers/outbox.worker.js`, `server/src/workers/expiration.worker.js`, `server/src/config/rabbitmq.js`.
+  10. **Frontend Setup :** `client/package.json`, `client/vite.config.js`.
+  11. **Frontend Components :** `client/src/components/Cart.vue`, `client/src/components/ProductList.vue`, `client/src/services/api.js`.
+
 **Décision :**
 Passage à la Blue Chain (Génération). Plan d'action validé et squelette du projet créé.
