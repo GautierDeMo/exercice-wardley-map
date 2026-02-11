@@ -2,13 +2,25 @@ const stockService = require('../../src/modules/stock/stock.service');
 const prisma = require('../../src/config/db');
 
 // Mock Prisma
-jest.mock('../../src/config/db', () => ({
-  stock: {
+jest.mock('../../src/config/db', () => {
+  const mockStock = {
     findUnique: jest.fn(),
     updateMany: jest.fn(),
     update: jest.fn()
-  }
-}));
+  };
+  const mockOutbox = {
+    create: jest.fn()
+  };
+
+  return {
+    stock: mockStock,
+    outbox: mockOutbox,
+    $transaction: jest.fn((callback) => callback({
+      stock: mockStock,
+      outbox: mockOutbox
+    }))
+  };
+});
 
 describe('StockService', () => {
   afterEach(() => {

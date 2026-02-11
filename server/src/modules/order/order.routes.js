@@ -1,5 +1,6 @@
 const express = require('express');
 const orderMachine = require('./order.machine');
+const stockService = require('../stock/stock.service');
 const prisma = require('../../config/db');
 const router = express.Router();
 
@@ -35,12 +36,18 @@ router.post('/:id/checkout', async (req, res) => {
       return res.status(400).json({ error: `Invalid transition from ${order.status} via CHECKOUT` });
     }
 
+    // Trigger Stock Reservation (Side Effect)
+    // In a real app, we would loop over items. Here we assume 1 item for simplicity or mock it.
+    // We use a fixed productId 'p1' and quantity 1 for this exercise's flow demonstration.
+    const mockProductId = 'p1';
+    const mockQuantity = 1;
+
+    await stockService.reserveStock(mockProductId, mockQuantity, id);
+
     const updatedOrder = await prisma.order.update({
       where: { id },
       data: { status: nextState.value }
     });
-
-    // TODO: Trigger Stock Reservation here (Side Effect)
 
     res.json(updatedOrder);
   } catch (error) {

@@ -555,3 +555,25 @@ Implémentation de `order.machine.js` avec XState pour gérer les transitions (D
 
 **Décision :**
 Module Order implémenté avec une machine à états stricte.
+
+#### P22 - Workers & Cycle de vie Asynchrone
+
+**Prompt :**
+> Here are the tests logs "❯ npm test tests/unit/order.machine.test.js [...] PASS". We're good. You can move on to the workers please
+
+**Résumé de la réponse :**
+Implémentation du pattern Outbox et des workers. Mise à jour de `stock.service.js` pour écrire atomiquement dans la table `Outbox` lors de la réservation. Création de `outbox.worker.js` (DB -> RabbitMQ) et `expiration.worker.js` (RabbitMQ -> Release Stock). Ajout d'un test d'intégration complet vérifiant le cycle : Checkout -> Réservation -> Délai -> Expiration -> Libération du stock.
+
+**Décision :**
+Architecture asynchrone et résiliente en place.
+
+#### P23 - Correction Tests Unitaires Stock (Mock Transaction)
+
+**Prompt :**
+> Since you update stock and order modules files, I ran the tests, and we have errors, in the stock test file. Could you please look what are the errors and what we have to update in our files please. We'll move on after these errors are fixed
+
+**Résumé de la réponse :**
+Correction du fichier de test `stock.service.test.js` pour mocker correctement `prisma.$transaction`. Le service utilise désormais une transaction interactive, donc le mock doit exécuter le callback en lui passant un objet de transaction simulé contenant les mocks de `stock` et `outbox`.
+
+**Décision :**
+Tests unitaires réparés et alignés avec l'implémentation transactionnelle.
