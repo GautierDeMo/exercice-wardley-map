@@ -1,5 +1,3 @@
-const { client } = require('../../config/redis');
-
 const PROMOTIONS = {
   'WELCOME10': { type: 'percent', value: 10, globalLimit: 100 },
   'SUMMER50': { type: 'flat', value: 50, globalLimit: 10 }, // $50 off
@@ -7,6 +5,10 @@ const PROMOTIONS = {
 };
 
 class PromotionService {
+  constructor({ redisClient }) {
+    this.redisClient = redisClient;
+  }
+
   async validatePromotion(code) {
     const promo = PROMOTIONS[code];
     if (!promo) {
@@ -14,7 +16,7 @@ class PromotionService {
     }
 
     if (promo.globalLimit) {
-      const usage = await client.get(`promo:${code}:usage`);
+      const usage = await this.redisClient.get(`promo:${code}:usage`);
       if (usage && parseInt(usage) >= promo.globalLimit) {
         throw new Error('Promotion limit reached');
       }
@@ -26,7 +28,7 @@ class PromotionService {
   async incrementUsage(code) {
     const promo = PROMOTIONS[code];
     if (promo && promo.globalLimit) {
-      await client.incr(`promo:${code}:usage`);
+      await this.redisClient.incr(`promo:${code}:usage`);
     }
   }
 
@@ -40,4 +42,4 @@ class PromotionService {
   }
 }
 
-module.exports = new PromotionService();
+module.exports = PromotionService;

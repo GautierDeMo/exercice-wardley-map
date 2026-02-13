@@ -1,5 +1,5 @@
 const prisma = require('../../config/db');
-const promotionService = require('./promotion.service');
+const { container } = require('../../container');
 
 class CartService {
   async createCart() {
@@ -20,7 +20,7 @@ class CartService {
 
   async applyPromotion(cartId, code) {
     // 1. Validate Promo
-    const promo = await promotionService.validatePromotion(code);
+    const promo = await container.promotionService.validatePromotion(code);
 
     // 2. Store Event
     await prisma.cartEvent.create({
@@ -32,7 +32,7 @@ class CartService {
     });
 
     // 3. Increment Global Usage (Side Effect)
-    await promotionService.incrementUsage(code);
+    await container.promotionService.incrementUsage(code);
 
     return this.getCart(cartId);
   }
@@ -74,7 +74,7 @@ class CartService {
 
     // Calculate Discount
     if (state.appliedPromo) {
-      state.discount = promotionService.calculateDiscount(state.total, state.appliedPromo);
+      state.discount = container.promotionService.calculateDiscount(state.total, state.appliedPromo);
     }
 
     state.finalTotal = Math.max(0, state.total - state.discount);

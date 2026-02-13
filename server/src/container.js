@@ -2,6 +2,7 @@ const prisma = require('./config/db');
 const { getChannel } = require('./config/rabbitmq');
 const { client: redisClient } = require('./config/redis');
 const StockService = require('./modules/stock/stock.service');
+const PromotionService = require('./modules/cart/promotion.service');
 
 // Container object to hold instances
 const container = {};
@@ -19,6 +20,7 @@ const setupContainer = () => {
   };
 
   container.stockService = new StockService(deps);
+  container.promotionService = new PromotionService(deps);
 
   console.log('Dependency Injection Container initialized.');
   return container;

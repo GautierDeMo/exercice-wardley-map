@@ -923,3 +923,14 @@ Correction des tests suite au refactoring de l'injection de dépendances.
 
 **Décision :**
 Tests réparés et alignés avec l'architecture DI.
+
+#### P41 - Refactoring Promotion Service (DI)
+
+**Prompt :**
+> We're good to go to the step 3. Promotion module refactoring. Don't forget update any files related, workers, tests...
+
+**Résumé de la réponse :**
+Refactoring du `PromotionService` pour en faire une classe injectable (suppression de l'import direct de Redis). Mise à jour de `container.js` pour instancier le service. Mise à jour de `CartService` pour utiliser l'instance du conteneur (`container.promotionService`) au lieu de l'import direct, assurant la compatibilité avant le refactoring complet du Cart. Mise à jour des tests unitaires pour refléter ces changements (mock du conteneur) et correction des attentes `jest` pour `prisma.cartEvent.create` (structure `{ data: ... }`).
+
+**Décision :**
+Module Promotion refactoré avec Injection de Dépendances.
