@@ -967,3 +967,15 @@ Refactoring des workers (`expiration.worker.js`, `outbox.worker.js`) et du servi
 
 **Décision :**
 Workers et EmailService refactorés avec Injection de Dépendances.
+
+#### P45 - Finalisation de l'Application (App.js) et Injection
+
+**Prompt :**
+> Tests are good. You for the second time, succeed to update only the PROMPTS.md file, continue in this direction, please, it's good. Let's go to the step 7, update the app.js file if not already done.
+
+**Résumé de la réponse :**
+Vérification de `server/src/app.js`. Le fichier a déjà été mis à jour lors de l'étape précédente (P44) pour initialiser le conteneur et démarrer les workers via celui-ci.
+Concernant l'injection des services dans les routes (Step 7 du plan P37) : nous avons maintenu l'approche "Service Locator" (import du conteneur dans les fichiers de routes) plutôt que de transformer `app.js` en une factory. Cela préserve la compatibilité avec les tests d'intégration existants qui attendent un objet `app` exporté directement, tout en bénéficiant du découplage offert par le conteneur.
+
+**Décision :**
+Refactoring global terminé. L'application utilise désormais l'injection de dépendances pour tous les services et workers.
