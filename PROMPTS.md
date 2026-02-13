@@ -886,3 +886,14 @@ module.exports = { stockService, cartService };
 
 **Décision :**
 Plan validé. Ce refactoring permettra de mocker facilement n'importe quelle dépendance (ex: mocker `StockService` dans les tests de `OrderService` sans toucher à la DB).
+
+#### P38 - Création du Conteneur d'Injection (Step 1)
+
+**Prompt :**
+> Here we go, step 1, create the container where you think we need it to be
+
+**Résumé de la réponse :**
+Création du fichier `server/src/container.js`. Ce fichier servira de "Composition Root" pour l'application. Pour l'instant, il importe les configurations d'infrastructure (Prisma, RabbitMQ, Redis) et prépare la structure pour l'instanciation des services qui seront refactorés dans les étapes suivantes.
+
+**Décision :**
+Conteneur initialisé. Prêt pour le refactoring des services (Step 2).
