@@ -10,9 +10,9 @@ const emit = defineEmits(['item-added']);
 
 // Mock Catalog (since we don't have a Product API yet)
 const products = ref([
-  { id: 'p1', title: 'Wardley Map Pro Kit', price: 1000, image: 'https://placehold.co/600x400/FF385C/white?text=Pro+Kit' },
-  { id: 'p2', title: 'Strategy Mouse', price: 50, image: 'https://placehold.co/600x400/222222/white?text=Mouse' },
-  { id: 'p3', title: 'Mechanical Keyboard', price: 80, image: 'https://placehold.co/600x400/717171/white?text=Keyboard' }
+  { id: 'p1', title: 'Wardley Map Pro Kit', price: 1000, image: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600&q=80' },
+  { id: 'p2', title: 'Strategy Mouse', price: 50, image: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=600&q=80' },
+  { id: 'p3', title: 'Mechanical Keyboard', price: 80, image: 'https://images.unsplash.com/photo-1626958390898-162d3577f293?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' }
 ]);
 
 const addToCart = async (product) => {

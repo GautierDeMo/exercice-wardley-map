@@ -90,7 +90,7 @@ const checkout = async () => {
         <div class="input-group">
           <input
             v-model="promoCode"
-            placeholder="Promo Code"
+            placeholder="Promo Code (Try WELCOME10)"
             @keyup.enter="applyPromo"
           />
           <button @click="applyPromo" class="text-btn">Apply</button>
