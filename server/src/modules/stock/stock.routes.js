@@ -1,10 +1,10 @@
 const express = require('express');
-const stockService = require('./stock.service');
+const { container } = require('../../container');
 const router = express.Router();
 
 router.get('/:productId', async (req, res) => {
   try {
-    const stock = await stockService.getStock(req.params.productId);
+    const stock = await container.stockService.getStock(req.params.productId);
     if (!stock) return res.status(404).json({ error: 'Stock not found' });
     res.json(stock);
   } catch (error) {
@@ -15,7 +15,7 @@ router.get('/:productId', async (req, res) => {
 router.post('/:productId/reserve', async (req, res) => {
   try {
     const { quantity } = req.body;
-    const result = await stockService.reserveStock(req.params.productId, quantity);
+    const result = await container.stockService.reserveStock(req.params.productId, quantity);
     res.json(result);
   } catch (error) {
     if (error.message.includes('Insufficient') || error.message.includes('Concurrency')) {
@@ -28,7 +28,7 @@ router.post('/:productId/reserve', async (req, res) => {
 router.post('/:productId/release', async (req, res) => {
   try {
     const { quantity } = req.body;
-    const result = await stockService.releaseStock(req.params.productId, quantity);
+    const result = await container.stockService.releaseStock(req.params.productId, quantity);
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });

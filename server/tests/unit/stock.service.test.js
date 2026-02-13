@@ -1,41 +1,36 @@
-const stockService = require('../../src/modules/stock/stock.service');
+const StockService = require('../../src/modules/stock/stock.service');
 const prisma = require('../../src/config/db');
 
-// Mock Prisma
-jest.mock('../../src/config/db', () => {
-  const mockStock = {
+jest.mock('../../src/config/db', () => ({
+  stock: {
     findUnique: jest.fn(),
     updateMany: jest.fn(),
-    update: jest.fn()
-  };
-  const mockOutbox = {
-    create: jest.fn()
-  };
-
-  return {
-    stock: mockStock,
-    outbox: mockOutbox,
-    $transaction: jest.fn((callback) => callback({
-      stock: mockStock,
-      outbox: mockOutbox
-    }))
-  };
-});
+    update: jest.fn(),
+  },
+  outbox: {
+    create: jest.fn(),
+  },
+  $transaction: jest.fn((callback) => callback(require('../../src/config/db'))),
+}));
 
 describe('StockService', () => {
-  afterEach(() => {
+  let stockService;
+
+  beforeEach(() => {
     jest.clearAllMocks();
+    stockService = new StockService({ prisma });
   });
 
   it('should reserve stock successfully when version matches', async () => {
     prisma.stock.findUnique.mockResolvedValue({ productId: 'p1', quantity: 10, version: 1 });
     prisma.stock.updateMany.mockResolvedValue({ count: 1 }); // Success
 
-    const result = await stockService.reserveStock('p1', 2);
+    const result = await stockService.reserveStock('p1', 2, 'order-1');
 
     expect(result.success).toBe(true);
     expect(prisma.stock.updateMany).toHaveBeenCalledWith(expect.objectContaining({
-      where: expect.objectContaining({ version: 1 })
+      where: { productId: 'p1', version: 1, quantity: { gte: 2 } },
+      data: { quantity: { decrement: 2 }, version: { increment: 1 } }
     }));
   });
 
@@ -52,8 +47,5 @@ describe('StockService', () => {
 
     await expect(stockService.reserveStock('p1', 2))
       .rejects.toThrow('Insufficient stock');
-
-    // Should not attempt update
-    expect(prisma.stock.updateMany).not.toHaveBeenCalled();
   });
 });

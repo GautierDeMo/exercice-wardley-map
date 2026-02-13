@@ -897,3 +897,29 @@ Création du fichier `server/src/container.js`. Ce fichier servira de "Compositi
 
 **Décision :**
 Conteneur initialisé. Prêt pour le refactoring des services (Step 2).
+
+#### P39 - Refactoring Stock Service (DI)
+
+**Prompt :**
+> Here we go, step 2. Don't update the previous prompt in the diary. Juste do your job for the step 2 and add a new entry in the diary with it. Update the PROMPTS.md file, don't create a new one
+
+**Résumé de la réponse :**
+Refactoring du `StockService` pour en faire une classe injectable (suppression des imports directs de `prisma`). Mise à jour de `container.js` pour instancier le service avec ses dépendances. Mise à jour des consommateurs (`stock.routes.js`, `order.routes.js`, `expiration.worker.js`) pour utiliser l'instance du conteneur, garantissant que l'application reste fonctionnelle pendant la transition.
+
+**Décision :**
+Module Stock refactoré avec Injection de Dépendances.
+
+#### P40 - Correction des Tests (Refactoring DI)
+
+**Prompt :**
+> You added the entry in another PROMPTS.md file, be careful next time. I got these logs when I run the tests...
+
+**Résumé de la réponse :**
+Correction des tests suite au refactoring de l'injection de dépendances.
+
+1. `tests/unit/stock.service.test.js` : Instanciation explicite de `StockService` avec un mock de Prisma, car le module exporte désormais une classe et non une instance.
+2. `tests/integration/workers.test.js` : Appel de `setupContainer()` et démarrage explicite des workers (`startExpirationWorker`, `processOutbox`) dans `beforeAll` pour que le cycle de vie asynchrone fonctionne dans l'environnement de test.
+3. `src/workers/expiration.worker.js` : Correction d'une référence manquante (`stockService` -> `container.stockService`).
+
+**Décision :**
+Tests réparés et alignés avec l'architecture DI.

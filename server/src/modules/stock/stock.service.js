@@ -1,8 +1,10 @@
-const prisma = require('../../config/db');
-
 class StockService {
+  constructor({ prisma }) {
+    this.prisma = prisma;
+  }
+
   async getStock(productId) {
-    return prisma.stock.findUnique({
+    return this.prisma.stock.findUnique({
       where: { productId }
     });
   }
@@ -13,7 +15,7 @@ class StockService {
    * Now wraps the update and Outbox event creation in a transaction.
    */
   async reserveStock(productId, quantity, orderId = null) {
-    return prisma.$transaction(async (tx) => {
+    return this.prisma.$transaction(async (tx) => {
       // 1. Fetch current state (Version & Quantity)
       const stock = await tx.stock.findUnique({
         where: { productId }
@@ -60,7 +62,7 @@ class StockService {
   }
 
   async releaseStock(productId, quantity) {
-    return prisma.stock.update({
+    return this.prisma.stock.update({
       where: { productId },
       data: {
         quantity: { increment: quantity },
@@ -70,4 +72,4 @@ class StockService {
   }
 }
 
-module.exports = new StockService();
+module.exports = StockService;

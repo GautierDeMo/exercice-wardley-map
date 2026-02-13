@@ -1,5 +1,5 @@
 const prisma = require('../config/db');
-const stockService = require('../modules/stock/stock.service');
+const { container } = require('../container');
 const orderMachine = require('../modules/order/order.machine');
 const emailService = require('../modules/notification/email.service');
 const { getChannel } = require('../config/rabbitmq');
@@ -30,7 +30,7 @@ async function startExpirationWorker() {
 
       if (nextState.changed) {
         console.log(`Expiring Order ${orderId}. Releasing stock.`);
-        await stockService.releaseStock(productId, quantity);
+        await container.stockService.releaseStock(productId, quantity);
         await prisma.order.update({ where: { id: orderId }, data: { status: nextState.value } });
 
         // Trigger Recovery Email

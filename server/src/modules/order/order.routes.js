@@ -1,6 +1,6 @@
 const express = require('express');
 const orderMachine = require('./order.machine');
-const stockService = require('../stock/stock.service');
+const { container } = require('../../container');
 const prisma = require('../../config/db');
 const router = express.Router();
 
@@ -42,7 +42,7 @@ router.post('/:id/checkout', async (req, res) => {
     const mockProductId = 'p1';
     const mockQuantity = 1;
 
-    await stockService.reserveStock(mockProductId, mockQuantity, id);
+    await container.stockService.reserveStock(mockProductId, mockQuantity, id);
 
     const updatedOrder = await prisma.order.update({
       where: { id },
