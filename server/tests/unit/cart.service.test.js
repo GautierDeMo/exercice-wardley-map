@@ -44,6 +44,28 @@ describe('CartService', () => {
     }));
   });
 
+  it('should remove item from cart', async () => {
+    await cartService.removeItem('cart-1', 'p1');
+    expect(prisma.cartEvent.create).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({
+        type: 'ITEM_REMOVED',
+        payload: { productId: 'p1' }
+      })
+    }));
+  });
+
+  it('should reconstruct cart state with removed items', async () => {
+    prisma.cart.findUnique.mockResolvedValue({
+      id: 'cart-1',
+      events: [
+        { type: 'ITEM_ADDED', payload: { productId: 'p1', quantity: 1, price: 100 } },
+        { type: 'ITEM_REMOVED', payload: { productId: 'p1' } }
+      ]
+    });
+    const cart = await cartService.getCart('cart-1');
+    expect(cart.items).toHaveLength(0);
+  });
+
   it('should apply promotion', async () => {
     const mockPromo = { type: 'percent', value: 10 };
     container.promotionService.validatePromotion.mockResolvedValue(mockPromo);

@@ -1067,3 +1067,33 @@ Amélioration de l'UX pour permettre de tester le flux complet (Happy Path & Zom
 
 **Décision :**
 Fonctionnalités de gestion de panier complétées et expérience de test (Timer) rendue plus réaliste et compréhensible.
+
+#### P51 - Correction Tests (Délai Expiration) et Couverture Suppression
+
+**Prompt :**
+> That's the tests logs [...] FAIL tests/integration/workers.test.js [...] Expected: "Expired" Received: "Pending". I want you to fix it, it's maybe related to the duration of expiration reservation. But I also want you to add a test for item deletion in the cart. And other tests if we added something that doesn't have tests for now.
+
+**Résumé de la réponse :**
+
+1. **Correction Test Intégration :** Le test échouait car le délai d'expiration (15s) était supérieur à l'attente du test (4s). Modification de `outbox.worker.js` pour utiliser un délai court (1s) lorsque `NODE_ENV === 'test'`, tout en conservant 15s pour l'usage manuel.
+2. **Ajout Tests Unitaires Cart :**
+    * Test de la méthode `removeItem` (vérification de la création de l'événement).
+    * Test de la reconstruction de l'état (`getCart`) pour vérifier qu'un item supprimé n'apparaît plus dans la liste finale.
+
+**Décision :**
+Tests réparés et couverture augmentée pour les nouvelles fonctionnalités du panier.
+
+#### P52 - Robustesse des Tests d'Intégration (Delay Configurable)
+
+**Prompt :**
+> We always have an error, fix it, or tell me which files in context you need to fix it
+
+**Résumé de la réponse :**
+Le test d'intégration échouait encore ("Pending" vs "Expired") car la condition `process.env.NODE_ENV === 'test'` n'était pas fiable dans tous les environnements d'exécution.
+Correction :
+
+1. Modification de `OutboxWorker` pour stocker le délai dans une propriété d'instance `this.delay`.
+2. Modification du test `workers.test.js` pour forcer explicitement `container.outboxWorker.delay = 1000` avant l'exécution.
+
+**Décision :**
+Tests stabilisés par injection de configuration explicite.
