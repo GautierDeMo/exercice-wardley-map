@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, onUnmounted } from 'vue';
 import api from '../services/api';
 
 const props = defineProps({
@@ -11,6 +11,10 @@ const orderStatus = ref(null);
 const promoCode = ref('');
 const promoMessage = ref('');
 const isCheckingOut = ref(false);
+const currentOrderId = ref(null);
+const timeLeft = ref(0);
+const notification = ref('');
+let timer = null;
 
 const fetchCart = async () => {
   if (!props.cartId) return;
@@ -27,6 +31,10 @@ defineExpose({ fetchCart });
 
 watch(() => props.cartId, fetchCart, { immediate: true });
 
+onUnmounted(() => {
+  if (timer) clearInterval(timer);
+});
+
 const applyPromo = async () => {
   if (!props.cartId || !promoCode.value) return;
   try {
@@ -42,15 +50,27 @@ const applyPromo = async () => {
 const checkout = async () => {
   if (!cart.value) return;
   isCheckingOut.value = true;
+  notification.value = '';
+  currentOrderId.value = null;
+
   try {
     // 1. Create Order
     const orderRes = await api.createOrder(props.cartId);
     const orderId = orderRes.data.id;
+    currentOrderId.value = orderId;
     orderStatus.value = `Order Created (${orderId})...`;
 
     // 2. Checkout (Reserve Stock)
     const checkoutRes = await api.checkout(orderId);
     orderStatus.value = `Success! Status: ${checkoutRes.data.status}`;
+
+    // Start Timer (2 seconds based on backend worker)
+    timeLeft.value = 2;
+    if (timer) clearInterval(timer);
+    timer = setInterval(() => {
+      if (timeLeft.value > 0) timeLeft.value--;
+      else clearInterval(timer);
+    }, 1000);
 
     // Refresh cart (should be empty or handled logic)
     // In this event sourcing model, the cart doesn't automatically empty unless we implement it.
@@ -59,6 +79,33 @@ const checkout = async () => {
     orderStatus.value = 'Failed: ' + (error.response?.data?.error || error.message);
   } finally {
     isCheckingOut.value = false;
+  }
+};
+
+const simulatePayment = async () => {
+  if (!currentOrderId.value) return;
+  try {
+    const res = await fetch(`/api/orders/${currentOrderId.value}/payment-webhook`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ success: true })
+    });
+    const data = await res.json();
+
+    if (data.status === 'Paid') {
+      orderStatus.value = `Status: ${data.status}`;
+      notification.value = "Order paid, shipping scheduled at your home in 3 days";
+      if (timer) clearInterval(timer);
+      timeLeft.value = 0;
+    } else if (data.status === 'Conflict') {
+      orderStatus.value = `Status: ${data.status}`;
+      notification.value = "Order expired. Payment received. Refund initiated.";
+    } else {
+      orderStatus.value = `Status: ${data.status}`;
+    }
+  } catch (error) {
+    console.error('Payment simulation failed', error);
+    notification.value = "Payment simulation failed";
   }
 };
 </script>
@@ -121,11 +168,27 @@ const checkout = async () => {
         {{ isCheckingOut ? 'Processing...' : 'Checkout' }}
       </button>
 
+      <div v-if="timeLeft > 0" class="timer-display">
+        Time remaining: {{ timeLeft }}s
+      </div>
+
+      <button
+        v-if="currentOrderId"
+        @click="simulatePayment"
+        class="pay-btn"
+      >
+        Simulate Payment
+      </button>
+
       <div v-if="orderStatus" class="status-message">
         {{ orderStatus }}
       </div>
     </div>
     <div v-else class="loading">Loading cart...</div>
+  </div>
+
+  <div v-if="notification" class="notification-toast">
+    {{ notification }}
   </div>
 </template>
 
@@ -276,5 +339,41 @@ const checkout = async () => {
   color: var(--text-light);
   text-align: center;
   padding: 20px 0;
+}
+
+.pay-btn {
+  width: 100%;
+  background: #222;
+  color: white;
+  padding: 14px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.timer-display {
+  text-align: center;
+  color: #E61E4D;
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+
+.notification-toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #222;
+  color: white;
+  padding: 16px 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 1000;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 </style>

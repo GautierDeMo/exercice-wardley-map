@@ -1035,3 +1035,18 @@ Modifications effectuées sur les fichiers Frontend fournis :
 
 **Décision :**
 Frontend modernisé avec une UI/UX professionnelle.
+
+#### P49 - Fonctionnalités de Paiement et Timer
+
+**Prompt :**
+> Okay, now I want to be able, when I click to checkout, I want to know how much time I need before my command is expired? And I also want a new button to simulate the payment, a new button just below the checkout one, and above the status, and when I click the payment simulation button, the status update to paid. And maybe we can have a notification displayed like "order paid, shipping scheduled at your home in 3days", or something like that. Is that possible?
+
+**Résumé de la réponse :**
+Ajout des fonctionnalités demandées dans le composant `Cart.vue` :
+
+1. **Timer d'expiration :** Affichage d'un compte à rebours (2s, aligné avec la configuration backend) après le checkout.
+2. **Simulation de Paiement :** Ajout d'un bouton "Simulate Payment" qui appelle le webhook de paiement (`/api/orders/:id/payment-webhook`).
+3. **Notification :** Affichage d'un toast de confirmation lors du succès du paiement (ou du remboursement en cas de conflit).
+
+**Décision :**
+Amélioration de l'UX pour permettre de tester le flux complet (Happy Path & Zombie Path) directement depuis l'interface.
