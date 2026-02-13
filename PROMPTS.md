@@ -979,3 +979,41 @@ Concernant l'injection des services dans les routes (Step 7 du plan P37) : nous 
 
 **Décision :**
 Refactoring global terminé. L'application utilise désormais l'injection de dépendances pour tous les services et workers.
+
+#### P46 - Audit de l'Orchestrateur et des Handlers
+
+**Prompt :**
+> Good! I now have to know if the orchestrator service of the project is generated, if yes, what file is it? Second question, have we a handler for the payment confirmation? And third one, have we a handler for expired reservation of stock? Fourth question: is our orchestrator service without any work logic, because we're looking for this, he assembles, he doesn't make decision. I ant you to write every inches of your response in the diary please. And the last time you correctly only updated the file, and not created it, continue like this it's good.
+
+**Réponse complète :**
+Voici l'analyse des composants d'orchestration et de gestion des événements demandée :
+
+##### 1. Service Orchestrateur
+
+* **Existe-t-il ?** Oui.
+* **Fichier :** `server/src/modules/order/order.service.js`.
+* **Rôle :** C'est le point central qui coordonne le processus de commande.
+
+##### 2. Handler de Confirmation de Paiement
+
+* **Existe-t-il ?** Oui.
+* **Localisation :** Méthode `handlePaymentSuccess(orderId)` dans `server/src/modules/order/order.service.js`.
+* **Fonctionnement :** Elle reçoit la confirmation, interroge la machine à états pour valider la transition (vers `Paid` ou `Conflict`), et persiste le changement.
+
+##### 3. Handler d'Expiration de Réservation
+
+* **Existe-t-il ?** Oui.
+* **Localisation :** `server/src/workers/expiration.worker.js`.
+* **Fonctionnement :** Ce worker agit comme un handler d'événement asynchrone. Il consomme le message d'expiration, vérifie l'état de la commande, libère le stock via `StockService` si nécessaire, et déclenche la notification.
+
+##### 4. Logique de l'Orchestrateur (Work Logic vs Assembly)
+
+* **Analyse :** Le service `OrderService` est conçu comme un orchestrateur "sans logique métier propre" (dumb orchestrator).
+* **Il assemble :** Il récupère les données (`prisma`), interroge les règles (`orderMachine`), et déclenche les actions (`stockService`).
+* **Il ne décide pas :** Il ne contient pas de conditions métier complexes (ex: `if (stock > 0)` ou `if (status === 'Pending')`). Il délègue :
+  * La décision de transition d'état à `order.machine.js`.
+  * La validation et la réservation du stock à `stock.service.js`.
+* **Conclusion :** Il respecte le principe recherché : il coordonne les composants sans porter la responsabilité des règles métier.
+
+**Décision :**
+L'architecture actuelle valide la séparation entre l'orchestration (OrderService), la logique métier (OrderMachine) et les opérations de domaine (StockService).
