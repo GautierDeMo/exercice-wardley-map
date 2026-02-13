@@ -56,7 +56,6 @@ docker-compose up -d
 
 ```bash
 cd server
-cp .env.example .env # Assurez-vous que les variables correspondent à docker-compose
 npm install
 npx prisma migrate dev # Création des tables
 npm run dev
