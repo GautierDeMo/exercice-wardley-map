@@ -934,3 +934,14 @@ Refactoring du `PromotionService` pour en faire une classe injectable (suppressi
 
 **Décision :**
 Module Promotion refactoré avec Injection de Dépendances.
+
+#### P42 - Refactoring Cart Service (DI)
+
+**Prompt :**
+> Learn from your precedent mistakes. And move on to the next step. Cart module refactoring. Same you can make a newx entry, in the good file, like the last request, you did well. And use every needed files to update the logic everywhere needed.
+
+**Résumé de la réponse :**
+Refactoring du `CartService` pour en faire une classe injectable. Mise à jour de `container.js` pour instancier le service en lui injectant `prisma` et `promotionService`. Mise à jour des routes (`cart.routes.js`) pour utiliser l'instance du conteneur. Mise à jour des tests unitaires pour instancier la classe avec les mocks appropriés.
+
+**Décision :**
+Module Cart refactoré avec Injection de Dépendances.

@@ -18,18 +18,24 @@ jest.mock('../../src/container', () => ({
 }));
 
 describe('CartService', () => {
+  let cartService;
+
   beforeEach(() => {
     jest.clearAllMocks();
+    cartService = new CartService({
+      prisma,
+      promotionService: container.promotionService
+    });
   });
 
   it('should create a cart', async () => {
     prisma.cart.create.mockResolvedValue({ id: 'cart-1' });
-    const cart = await CartService.createCart();
+    const cart = await cartService.createCart();
     expect(cart).toEqual({ id: 'cart-1' });
   });
 
   it('should add item to cart', async () => {
-    await CartService.addItem('cart-1', { productId: 'p1', quantity: 1, price: 100 });
+    await cartService.addItem('cart-1', { productId: 'p1', quantity: 1, price: 100 });
     expect(prisma.cartEvent.create).toHaveBeenCalledWith(expect.objectContaining({
       data: expect.objectContaining({
         type: 'ITEM_ADDED',
@@ -44,7 +50,7 @@ describe('CartService', () => {
     // Mock getCart to return something to avoid error in return
     prisma.cart.findUnique.mockResolvedValue({ id: 'cart-1', events: [] });
 
-    await CartService.applyPromotion('cart-1', 'WELCOME10');
+    await cartService.applyPromotion('cart-1', 'WELCOME10');
 
     expect(container.promotionService.validatePromotion).toHaveBeenCalledWith('WELCOME10');
     expect(prisma.cartEvent.create).toHaveBeenCalledWith(expect.objectContaining({

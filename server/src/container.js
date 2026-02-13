@@ -3,6 +3,7 @@ const { getChannel } = require('./config/rabbitmq');
 const { client: redisClient } = require('./config/redis');
 const StockService = require('./modules/stock/stock.service');
 const PromotionService = require('./modules/cart/promotion.service');
+const CartService = require('./modules/cart/cart.service');
 
 // Container object to hold instances
 const container = {};

@@ -1,15 +1,17 @@
-const prisma = require('../../config/db');
-const { container } = require('../../container');
-
 class CartService {
+  constructor({ prisma, promotionService }) {
+    this.prisma = prisma;
+    this.promotionService = promotionService;
+  }
+
   async createCart() {
-    return prisma.cart.create({ data: {} });
+    return this.prisma.cart.create({ data: {} });
   }
 
   async addItem(cartId, { productId, quantity, price }) {
     // In a real app, we would verify product existence and price here.
     // For Event Sourcing, we snapshot the price at the time of addition.
-    return prisma.cartEvent.create({
+    return this.prisma.cartEvent.create({
       data: {
         cartId,
         type: 'ITEM_ADDED',
@@ -20,10 +22,10 @@ class CartService {
 
   async applyPromotion(cartId, code) {
     // 1. Validate Promo
-    const promo = await container.promotionService.validatePromotion(code);
+    const promo = await this.promotionService.validatePromotion(code);
 
     // 2. Store Event
-    await prisma.cartEvent.create({
+    await this.prisma.cartEvent.create({
       data: {
         cartId,
         type: 'PROMO_APPLIED',
@@ -32,13 +34,13 @@ class CartService {
     });
 
     // 3. Increment Global Usage (Side Effect)
-    await container.promotionService.incrementUsage(code);
+    await this.promotionService.incrementUsage(code);
 
     return this.getCart(cartId);
   }
 
   async getCart(cartId) {
-    const cart = await prisma.cart.findUnique({
+    const cart = await this.prisma.cart.findUnique({
       where: { id: cartId },
       include: { events: { orderBy: { createdAt: 'asc' } } }
     });
@@ -74,7 +76,7 @@ class CartService {
 
     // Calculate Discount
     if (state.appliedPromo) {
-      state.discount = container.promotionService.calculateDiscount(state.total, state.appliedPromo);
+      state.discount = this.promotionService.calculateDiscount(state.total, state.appliedPromo);
     }
 
     state.finalTotal = Math.max(0, state.total - state.discount);
@@ -83,4 +85,4 @@ class CartService {
   }
 }
 
-module.exports = new CartService();
+module.exports = CartService;
