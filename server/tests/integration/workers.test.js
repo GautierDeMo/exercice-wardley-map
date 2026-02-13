@@ -3,9 +3,7 @@ const app = require('../../src/app');
 const prisma = require('../../src/config/db');
 const { connectRabbitMQ, closeRabbitMQ } = require('../../src/config/rabbitmq');
 const { connectRedis, disconnectRedis } = require('../../src/config/redis');
-const { setupContainer } = require('../../src/container');
-const { startExpirationWorker } = require('../../src/workers/expiration.worker');
-const { processOutbox } = require('../../src/workers/outbox.worker');
+const { setupContainer, container } = require('../../src/container');
 
 describe('Worker Lifecycle Integration', () => {
   let outboxInterval;
@@ -15,8 +13,8 @@ describe('Worker Lifecycle Integration', () => {
     await connectRedis();
     setupContainer(); // Initialize DI container
 
-    await startExpirationWorker();
-    outboxInterval = setInterval(processOutbox, 500); // Poll every 500ms
+    await container.expirationWorker.start();
+    outboxInterval = setInterval(() => container.outboxWorker.process(), 500); // Poll every 500ms
 
     // Clean DB
     await prisma.outbox.deleteMany();

@@ -1,50 +1,55 @@
-const prisma = require('../config/db');
-const { container } = require('../container');
 const orderMachine = require('../modules/order/order.machine');
-const emailService = require('../modules/notification/email.service');
-const { getChannel } = require('../config/rabbitmq');
 
-async function startExpirationWorker() {
-  const channel = getChannel();
-  const queue = 'expiration_queue';
+class ExpirationWorker {
+  constructor({ prisma, stockService, emailService, getChannel }) {
+    this.prisma = prisma;
+    this.stockService = stockService;
+    this.emailService = emailService;
+    this.getChannel = getChannel;
+  }
 
-  await channel.assertQueue(queue, { durable: true });
-  await channel.bindQueue(queue, 'delayed_exchange', 'stock.expiration');
+  async start() {
+    const channel = this.getChannel();
+    const queue = 'expiration_queue';
 
-  channel.consume(queue, async (msg) => {
-    if (!msg) return;
+    await channel.assertQueue(queue, { durable: true });
+    await channel.bindQueue(queue, 'delayed_exchange', 'stock.expiration');
 
-    try {
-      const { orderId, productId, quantity } = JSON.parse(msg.content.toString());
+    channel.consume(queue, async (msg) => {
+      if (!msg) return;
 
-      const order = await prisma.order.findUnique({ where: { id: orderId } });
+      try {
+        const { orderId, productId, quantity } = JSON.parse(msg.content.toString());
 
-      if (!order) {
-        console.log(`Order ${orderId} not found, ignoring expiration.`);
+        const order = await this.prisma.order.findUnique({ where: { id: orderId } });
+
+        if (!order) {
+          console.log(`Order ${orderId} not found, ignoring expiration.`);
+          channel.ack(msg);
+          return;
+        }
+
+        // Check if we should expire
+        const nextState = orderMachine.transition(order.status, 'TIMEOUT');
+
+        if (nextState.changed) {
+          console.log(`Expiring Order ${orderId}. Releasing stock.`);
+          await this.stockService.releaseStock(productId, quantity);
+          await this.prisma.order.update({ where: { id: orderId }, data: { status: nextState.value } });
+
+          // Trigger Recovery Email
+          await this.emailService.sendAbandonedCartEmail(orderId);
+        } else {
+          console.log(`Order ${orderId} is ${order.status}. No expiration needed.`);
+        }
+
         channel.ack(msg);
-        return;
+      } catch (error) {
+        console.error('Error processing expiration:', error);
+        channel.nack(msg);
       }
-
-      // Check if we should expire
-      const nextState = orderMachine.transition(order.status, 'TIMEOUT');
-
-      if (nextState.changed) {
-        console.log(`Expiring Order ${orderId}. Releasing stock.`);
-        await container.stockService.releaseStock(productId, quantity);
-        await prisma.order.update({ where: { id: orderId }, data: { status: nextState.value } });
-
-        // Trigger Recovery Email
-        await emailService.sendAbandonedCartEmail(orderId);
-      } else {
-        console.log(`Order ${orderId} is ${order.status}. No expiration needed.`);
-      }
-
-      channel.ack(msg);
-    } catch (error) {
-      console.error('Error processing expiration:', error);
-      channel.nack(msg);
-    }
-  });
+    });
+  }
 }
 
-module.exports = { startExpirationWorker };
+module.exports = ExpirationWorker;

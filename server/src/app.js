@@ -12,9 +12,7 @@ const cartRoutes = require('./modules/cart/cart.routes');
 const orderRoutes = require('./modules/order/order.routes');
 const { connectRabbitMQ } = require('./config/rabbitmq');
 const { connectRedis } = require('./config/redis');
-const { setupContainer } = require('./container');
-const { startExpirationWorker } = require('./workers/expiration.worker');
-const { processOutbox } = require('./workers/outbox.worker');
+const { setupContainer, container } = require('./container');
 
 // Middleware
 app.use(helmet());
@@ -47,8 +45,8 @@ if (require.main === module) {
       await connectRedis();
       await connectRabbitMQ();
       setupContainer();
-      await startExpirationWorker();
-      setInterval(processOutbox, 1000); // Poll Outbox every 1s
+      await container.expirationWorker.start();
+      setInterval(() => container.outboxWorker.process(), 1000); // Poll Outbox every 1s
 
       app.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`);

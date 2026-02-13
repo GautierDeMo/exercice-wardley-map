@@ -938,7 +938,7 @@ Module Promotion refactoré avec Injection de Dépendances.
 #### P42 - Refactoring Cart Service (DI)
 
 **Prompt :**
-> Learn from your precedent mistakes. And move on to the next step. Cart module refactoring. Same you can make a newx entry, in the good file, like the last request, you did well. And use every needed files to update the logic everywhere needed.
+> Learn from your precedent mistakes. And move on to the next step. Cart module refactoring. Same you can make a new entry, in the good file, like the last request, you did well. And use every needed files to update the logic everywhere needed.
 
 **Résumé de la réponse :**
 Refactoring du `CartService` pour en faire une classe injectable. Mise à jour de `container.js` pour instancier le service en lui injectant `prisma` et `promotionService`. Mise à jour des routes (`cart.routes.js`) pour utiliser l'instance du conteneur. Mise à jour des tests unitaires pour instancier la classe avec les mocks appropriés.
@@ -956,3 +956,14 @@ Refactoring du module Order. Création de `OrderService` pour encapsuler la logi
 
 **Décision :**
 Module Order refactoré avec Injection de Dépendances.
+
+#### P44 - Refactoring Workers (DI)
+
+**Prompt :**
+> Okay, tests are good. Step 5 finished. Could you please move on to the step 6: workers refactoring. Same, don't forget any files to update, in every folders. AND, for the (IDK how many times I told you this), don't create a PROMPTS.md file, update the existing one with this new request as an entry prompt
+
+**Résumé de la réponse :**
+Refactoring des workers (`expiration.worker.js`, `outbox.worker.js`) et du service `email.service.js` pour en faire des classes injectables. Mise à jour de `container.js` pour instancier ces classes avec leurs dépendances (`prisma`, `stockService`, `emailService`, `getChannel`). Mise à jour de `app.js` et des tests d'intégration pour utiliser les instances du conteneur au lieu des imports directs.
+
+**Décision :**
+Workers et EmailService refactorés avec Injection de Dépendances.

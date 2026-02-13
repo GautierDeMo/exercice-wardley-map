@@ -5,6 +5,9 @@ const StockService = require('./modules/stock/stock.service');
 const PromotionService = require('./modules/cart/promotion.service');
 const CartService = require('./modules/cart/cart.service');
 const OrderService = require('./modules/order/order.service');
+const EmailService = require('./modules/notification/email.service');
+const OutboxWorker = require('./workers/outbox.worker');
+const ExpirationWorker = require('./workers/expiration.worker');
 
 // Container object to hold instances
 const container = {};
@@ -25,6 +28,13 @@ const setupContainer = () => {
   container.promotionService = new PromotionService(deps);
   container.cartService = new CartService({ ...deps, promotionService: container.promotionService });
   container.orderService = new OrderService({ ...deps, stockService: container.stockService });
+  container.emailService = new EmailService();
+  container.outboxWorker = new OutboxWorker(deps);
+  container.expirationWorker = new ExpirationWorker({
+    ...deps,
+    stockService: container.stockService,
+    emailService: container.emailService
+  });
 
   console.log('Dependency Injection Container initialized.');
   return container;
