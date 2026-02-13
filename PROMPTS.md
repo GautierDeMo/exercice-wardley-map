@@ -1097,3 +1097,16 @@ Correction :
 
 **Décision :**
 Tests stabilisés par injection de configuration explicite.
+
+#### P53 - Amélioration UI Bouton Paiement
+
+**Prompt :**
+> Just to be very clear in the app, change the hover color of the simulate payment button please, and put it in another color than black. We need to understand that is a call to action button. And we need to understand it's activated, and when we hover it also it's clickable
+
+**Résumé de la réponse :**
+Modification du style du bouton "Simulate Payment" dans `Cart.vue`.
+Remplacement du fond noir par un bleu "Call to Action" (`#007AFF`) pour le distinguer.
+Ajout d'effets de survol (changement de couleur, légère élévation, ombre) et d'état actif pour améliorer l'affordance et le feedback utilisateur.
+
+**Décision :**
+Amélioration de l'UI pour rendre l'action de paiement plus évidente et interactive.
