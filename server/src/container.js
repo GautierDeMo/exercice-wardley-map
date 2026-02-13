@@ -4,6 +4,7 @@ const { client: redisClient } = require('./config/redis');
 const StockService = require('./modules/stock/stock.service');
 const PromotionService = require('./modules/cart/promotion.service');
 const CartService = require('./modules/cart/cart.service');
+const OrderService = require('./modules/order/order.service');
 
 // Container object to hold instances
 const container = {};
@@ -22,6 +23,8 @@ const setupContainer = () => {
 
   container.stockService = new StockService(deps);
   container.promotionService = new PromotionService(deps);
+  container.cartService = new CartService({ ...deps, promotionService: container.promotionService });
+  container.orderService = new OrderService({ ...deps, stockService: container.stockService });
 
   console.log('Dependency Injection Container initialized.');
   return container;

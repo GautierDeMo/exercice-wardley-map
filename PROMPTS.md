@@ -945,3 +945,14 @@ Refactoring du `CartService` pour en faire une classe injectable. Mise à jour d
 
 **Décision :**
 Module Cart refactoré avec Injection de Dépendances.
+
+#### P43 - Refactoring Order Service (DI)
+
+**Prompt :**
+> Another time you created a new PROMPTS.md file. I corrected it and add the entry in the good file. Please be careful for next request. Al tests are green. You can pass to the next step: odrer module refactoring
+
+**Résumé de la réponse :**
+Refactoring du module Order. Création de `OrderService` pour encapsuler la logique de transition d'état et les effets de bord (appel au Stock). Mise à jour de `container.js` pour instancier ce service avec ses dépendances (`prisma`, `stockService`). Nettoyage de `order.routes.js` qui délègue désormais toute la logique au service injecté. Ajout de tests unitaires pour `OrderService`.
+
+**Décision :**
+Module Order refactoré avec Injection de Dépendances.
