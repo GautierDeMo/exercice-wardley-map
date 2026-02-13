@@ -194,7 +194,7 @@ stateDiagram-v2
     Expired --> [*] : Abandoned
 ```
 
-##### 2. Transition Logic & Guards
+#### 2. Transition Logic & Guards
 
 * **Draft → Pending**
   * *Trigger:* User clicks "Checkout".
@@ -216,7 +216,7 @@ stateDiagram-v2
   * *Trigger:* Automatic System Process (or Admin Action).
   * *Logic:* Issue Refund via Payment Gateway.
 
-##### 3. Explicitly Forbidden Transitions (Safety Checks)
+#### 3. Explicitly Forbidden Transitions (Safety Checks)
 
 To ensure system integrity, the XState machine must explicitly block these paths:
 
@@ -814,3 +814,75 @@ Le projet suit une architecture de **Monolithe Modulaire**.
 
 **Décision :**
 L'architecture actuelle favorise la simplicité et la cohérence transactionnelle (via Prisma) au détriment d'une indépendance stricte de déploiement. C'est un choix cohérent pour la taille du projet.
+
+#### P37 - Plan de Refactoring vers l'Injection de Dépendances
+
+**Prompt :**
+> If we want to make every module work independently, with dependency injection. Is it possible? If yes, I want a plan to follow to update the project in this direction please. You can make this request an entry in the diary. This time also, insert all of your response in the entry
+
+**Réponse complète :**
+Oui, c'est tout à fait possible et c'est une excellente pratique pour améliorer la testabilité et le découplage. Voici le plan d'action pour transformer l'architecture actuelle (Monolithe Modulaire avec imports directs) vers une architecture avec Injection de Dépendances (DI).
+
+##### 1. Stratégie de Refactoring
+
+Nous allons passer d'un modèle `Singleton exporté` (ex: `module.exports = new Service()`) à un modèle `Classe injectable` (ex: `module.exports = Service`).
+Nous créerons un **Conteneur d'Injection (Composition Root)** dans `src/container.js` qui sera responsable d'instancier tous les services et de leur fournir leurs dépendances.
+
+##### 2. Plan d'Exécution (Step-by-Step)
+
+###### Étape 1 : Création du Conteneur (Infrastructure)
+
+* Créer `src/container.js`.
+* Ce fichier importera la configuration DB (Prisma), Redis, RabbitMQ.
+* Il instanciera les services dans le bon ordre.
+
+###### Étape 2 : Refactoring du Module Stock
+
+* Transformer `stock.service.js` en `class StockService`.
+* **Constructeur :** `constructor({ prisma, outbox })`.
+* Supprimer les `require('../config/db')` internes.
+
+###### Étape 3 : Refactoring du Module Promotion
+
+* Transformer `promotion.service.js` en `class PromotionService`.
+* **Constructeur :** `constructor({ redisClient })`.
+
+###### Étape 4 : Refactoring du Module Cart
+
+* Transformer `cart.service.js` en `class CartService`.
+* **Constructeur :** `constructor({ prisma, promotionService })`.
+* Le `CartService` ne connaîtra pas l'implémentation de `promotionService`, juste son interface.
+
+###### Étape 5 : Refactoring du Module Order
+
+* Transformer `order.machine.js` pour accepter des services en configuration/contexte plutôt qu'en import direct.
+* Créer un `OrderService` (actuellement la logique est dans les routes) pour encapsuler la logique.
+* **Constructeur :** `constructor({ prisma, stockService, paymentService })`.
+
+###### Étape 6 : Refactoring des Workers
+
+* Transformer `expiration.worker.js` en une fonction factory ou une classe.
+* **Injection :** `createExpirationWorker({ stockService, emailService, orderService })`.
+
+###### Étape 7 : Mise à jour de l'Application (App.js)
+
+* Au démarrage (`init`), appeler le conteneur pour récupérer les instances.
+* Injecter les instances de services dans les contrôleurs/routes (ex: `createStockRoutes(stockService)`).
+
+##### 3. Exemple de Résultat Attendu (Composition Root)
+
+```javascript
+// src/container.js
+const prisma = require('./config/db');
+const StockService = require('./modules/stock/stock.service');
+const CartService = require('./modules/cart/cart.service');
+
+// Injection manuelle (Pure DI)
+const stockService = new StockService({ prisma });
+const cartService = new CartService({ prisma, stockService }); // Si dépendance
+
+module.exports = { stockService, cartService };
+```
+
+**Décision :**
+Plan validé. Ce refactoring permettra de mocker facilement n'importe quelle dépendance (ex: mocker `StockService` dans les tests de `OrderService` sans toucher à la DB).
