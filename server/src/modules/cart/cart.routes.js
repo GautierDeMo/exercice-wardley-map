@@ -32,6 +32,16 @@ router.post('/:id/items', async (req, res) => {
   }
 });
 
+router.delete('/:id/items/:productId', async (req, res) => {
+  try {
+    await container.cartService.removeItem(req.params.id, req.params.productId);
+    const cart = await container.cartService.getCart(req.params.id);
+    res.json(cart);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 router.post('/:id/promo', async (req, res) => {
   try {
     const { code } = req.body;

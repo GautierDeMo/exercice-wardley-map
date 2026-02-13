@@ -20,8 +20,8 @@ class OutboxWorker {
 
         if (type === 'STOCK_RESERVED') {
           // Publish to Delayed Exchange
-          // Delay is hardcoded to 2 seconds for testing purposes (instead of 24h)
-          const delay = 2000;
+          // Delay is hardcoded to 15 seconds for testing purposes (instead of 24h)
+          const delay = 15000;
 
           channel.publish('delayed_exchange', 'stock.expiration', Buffer.from(JSON.stringify(payload)), {
             headers: { 'x-delay': delay }

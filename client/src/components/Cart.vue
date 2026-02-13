@@ -64,8 +64,8 @@ const checkout = async () => {
     const checkoutRes = await api.checkout(orderId);
     orderStatus.value = `Success! Status: ${checkoutRes.data.status}`;
 
-    // Start Timer (2 seconds based on backend worker)
-    timeLeft.value = 2;
+    // Start Timer (15 seconds based on backend worker)
+    timeLeft.value = 15;
     if (timer) clearInterval(timer);
     timer = setInterval(() => {
       if (timeLeft.value > 0) timeLeft.value--;
@@ -79,6 +79,19 @@ const checkout = async () => {
     orderStatus.value = 'Failed: ' + (error.response?.data?.error || error.message);
   } finally {
     isCheckingOut.value = false;
+  }
+};
+
+const removeItem = async (productId) => {
+  if (!props.cartId) return;
+  try {
+    const res = await fetch(`/api/cart/${props.cartId}/items/${productId}`, {
+      method: 'DELETE'
+    });
+    const updatedCart = await res.json();
+    cart.value = updatedCart;
+  } catch (error) {
+    console.error('Error removing item:', error);
   }
 };
 
@@ -127,7 +140,10 @@ const simulatePayment = async () => {
             <span class="item-name">Product {{ item.productId }}</span>
             <span class="item-qty">x{{ item.quantity }}</span>
           </div>
-          <span class="item-price">${{ item.price }}</span>
+          <div class="item-actions">
+            <span class="item-price">${{ item.price }}</span>
+            <button @click="removeItem(item.productId)" class="remove-btn" :disabled="isCheckingOut">×</button>
+          </div>
         </div>
       </div>
 
@@ -169,7 +185,8 @@ const simulatePayment = async () => {
       </button>
 
       <div v-if="timeLeft > 0" class="timer-display">
-        Time remaining: {{ timeLeft }}s
+        Stock reserved for: {{ timeLeft }}s<br>
+        <small>(Conflict if paid after)</small>
       </div>
 
       <button
@@ -229,6 +246,26 @@ const simulatePayment = async () => {
 
 .item-qty {
   color: var(--text-light);
+}
+
+.item-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.remove-btn {
+  background: none;
+  border: none;
+  color: var(--text-light);
+  font-size: 20px;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+}
+
+.remove-btn:hover {
+  color: var(--primary);
 }
 
 .divider {

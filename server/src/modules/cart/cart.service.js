@@ -20,6 +20,16 @@ class CartService {
     });
   }
 
+  async removeItem(cartId, productId) {
+    return this.prisma.cartEvent.create({
+      data: {
+        cartId,
+        type: 'ITEM_REMOVED',
+        payload: { productId }
+      }
+    });
+  }
+
   async applyPromotion(cartId, code) {
     // 1. Validate Promo
     const promo = await this.promotionService.validatePromotion(code);
@@ -66,6 +76,8 @@ class CartService {
         } else {
           state.items.push({ productId, quantity, price });
         }
+      } else if (event.type === 'ITEM_REMOVED') {
+        state.items = state.items.filter(i => i.productId !== event.payload.productId);
       } else if (event.type === 'PROMO_APPLIED') {
         state.appliedPromo = event.payload;
       }

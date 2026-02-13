@@ -1050,3 +1050,20 @@ Ajout des fonctionnalités demandées dans le composant `Cart.vue` :
 
 **Décision :**
 Amélioration de l'UX pour permettre de tester le flux complet (Happy Path & Zombie Path) directement depuis l'interface.
+
+#### P50 - Suppression d'articles et Ajustement du Timer
+
+**Prompt :**
+> Okay, now I want button that can allow me to remove something from the cart. And also I have a weird situation: because we only have 3seconds to pay, I want you to update this duration. To 15sec, and I also want you to update the message about the time remaining. I want it to be explicit and understand that the user have 15second before the expiration of his stock reservation, so if he pays after 15sec, there'll be a conflict. And if he pays before, it's OK
+
+**Résumé de la réponse :**
+
+1. **Suppression d'articles :** Ajout de la fonctionnalité de suppression dans le panier.
+    * Backend : Ajout de la méthode `removeItem` dans `CartService` (Event `ITEM_REMOVED`) et de la route `DELETE`.
+    * Frontend : Ajout d'un bouton "×" à côté de chaque article dans `Cart.vue`.
+2. **Ajustement du Timer :**
+    * Backend : Augmentation du délai d'expiration dans `outbox.worker.js` de 2s à 15s.
+    * Frontend : Mise à jour du compte à rebours à 15s et modification du message pour expliciter le risque de conflit ("Stock reserved for: X s (Conflict if paid after)").
+
+**Décision :**
+Fonctionnalités de gestion de panier complétées et expérience de test (Timer) rendue plus réaliste et compréhensible.
