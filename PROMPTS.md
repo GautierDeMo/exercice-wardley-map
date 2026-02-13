@@ -1017,3 +1017,21 @@ Voici l'analyse des composants d'orchestration et de gestion des événements de
 
 **Décision :**
 L'architecture actuelle valide la séparation entre l'orchestration (OrderService), la logique métier (OrderMachine) et les opérations de domaine (StockService).
+
+#### P47 - Refonte UI/UX (Style "Airbnb-like")
+
+**Prompt :**
+> I want you to update the style of our app. Now it's simple without effect and esthetics. I want you to do a site as pretty as AirBnB or other worldwide website
+
+**Résumé de la réponse :**
+Application d'une refonte esthétique majeure inspirée du design system d'Airbnb (typographie propre, cartes, ombres douces, couleur "Rausch").
+
+Modifications effectuées sur les fichiers Frontend fournis :
+
+1. `client/index.html` : Ajout de la police "Manrope" via Google Fonts.
+2. `client/src/App.vue` : Mise en place d'un layout global avec Header sticky, variables CSS globales (couleurs, ombres) et grille responsive.
+3. `client/src/components/ProductList.vue` : Transformation de la liste en grille de cartes avec images (placeholders), effets de survol et boutons d'action modernes.
+4. `client/src/components/Cart.vue` : Redesign du panier en "Sticky Card" avec résumé clair, gestion des codes promo intégrée et bouton de checkout proéminent (gradient).
+
+**Décision :**
+Frontend modernisé avec une UI/UX professionnelle.
