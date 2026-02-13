@@ -64,14 +64,14 @@ En attente de la sélection des 5 hypothèses à retenir.
 **Réponse complète (Résumé de l'architecture) :**
 Voici le récapitulatif complet des choix architecturaux et techniques validés pour le projet :
 
-#### 1. Stack Technique
+##### 1. Stack Technique
 
 * **Frontend :** Vue.js (via Vite). *Raison :* Confort de développement et performance.
 * **Backend :** Express.js. *Raison :* Flexibilité et écosystème riche, structuré en "micro-outils".
 * **Base de données :** PostgreSQL avec Prisma ORM. *Raison :* Robustesse relationnelle et typage fort.
 * **Infrastructure additionnelle :** RabbitMQ. *Raison :* Nécessaire pour la gestion asynchrone des expirations (Hypothèse 14).
 
-#### 2. Invariants et Périmètre
+##### 2. Invariants et Périmètre
 
 * **Périmètre :** Gestion de panier, Tunnel d'achat, Simulation paiement, Gestion des commandes, Relance panier abandonné.
 * **Invariants Critiques :**
@@ -80,7 +80,7 @@ Voici le récapitulatif complet des choix architecturaux et techniques validés 
   * Exclusivité des promotions incompatibles.
   * Expiration stricte des réservations (TTL).
 
-#### 3. Hypothèses d'Implémentation Validées
+##### 3. Hypothèses d'Implémentation Validées
 
 * **Réservation de Stock : Verrouillage Optimiste (Hypothèse 2)**
   * *Choix :* Utilisation d'une colonne de versioning.
@@ -164,7 +164,7 @@ Stratégies validées. Ajout de Redis à la stack technique pour gérer les comp
 **Réponse complète :**
 Here is the complete State Machine Diagram (SMD) and the logic analysis for the "Moldable Development" phase.
 
-#### 1. State Machine Diagram (Mermaid)
+##### 1. State Machine Diagram (Mermaid)
 
 ```mermaid
 stateDiagram-v2
@@ -194,7 +194,7 @@ stateDiagram-v2
     Expired --> [*] : Abandoned
 ```
 
-#### 2. Transition Logic & Guards
+##### 2. Transition Logic & Guards
 
 * **Draft → Pending**
   * *Trigger:* User clicks "Checkout".
@@ -216,7 +216,7 @@ stateDiagram-v2
   * *Trigger:* Automatic System Process (or Admin Action).
   * *Logic:* Issue Refund via Payment Gateway.
 
-#### 3. Explicitly Forbidden Transitions (Safety Checks)
+##### 3. Explicitly Forbidden Transitions (Safety Checks)
 
 To ensure system integrity, the XState machine must explicitly block these paths:
 
@@ -301,19 +301,19 @@ Structure validée pour supporter les contraintes techniques (Workers, Modules i
 **Réponse complète :**
 Voici la liste exhaustive des responsabilités pour chaque fichier et composant de l'architecture :
 
-#### 1. Infrastructure & Configuration
+##### 1. Infrastructure & Configuration
 
 * **`docker-compose.yml`** : Orchestration des services externes. Doit monter les images PostgreSQL (persistance), RabbitMQ (messaging avec plugin `delayed_message_exchange`) et Redis (cache/compteurs).
 * **`server/prisma/schema.prisma`** : Source de vérité du modèle de données. Définit les relations (Product <-> Stock), les contraintes d'unicité, et le modèle `Outbox` pour la fiabilité des événements.
 
-#### 2. Backend (Server) - Core
+##### 2. Backend (Server) - Core
 
 * **`src/app.js`** : Point d'entrée. Initialise Express, configure les middlewares globaux (CORS, BodyParser), monte les routes des modules et gère le handler d'erreur global.
 * **`src/config/db.js`** : Singleton Prisma. Gère la connexion/déconnexion propre à la base de données.
 * **`src/config/rabbitmq.js`** : Wrapper RabbitMQ. Gère la connexion, la création des channels et des exchanges. Expose des méthodes `publishToQueue` et `publishDelayed`.
 * **`src/config/redis.js`** : Wrapper Redis. Expose les méthodes atomiques (`INCR`, `GET`) pour les limites de promotions globales.
 
-#### 3. Backend - Modules (Micro-outils)
+##### 3. Backend - Modules (Micro-outils)
 
 * **`src/modules/cart/`**
   * **`cart.routes.js`** : Expose les endpoints HTTP (`POST /items`, `POST /promo`).
@@ -333,7 +333,7 @@ Voici la liste exhaustive des responsabilités pour chaque fichier et composant 
     * Simule la validation bancaire.
     * Gère le cas critique "Zombie" : si le paiement arrive sur une commande `Expired`, déclenche la logique de remboursement/conflit.
 
-#### 4. Backend - Workers (Async)
+##### 4. Backend - Workers (Async)
 
 * **`src/workers/outbox.worker.js`** : Garant de la cohérence (Pattern Outbox).
   * Lit périodiquement (ou via notification) la table `Outbox`.
@@ -344,7 +344,7 @@ Voici la liste exhaustive des responsabilités pour chaque fichier et composant 
   * Vérifie l'état de la commande (Idempotence).
   * Appelle `stock.service.js` pour libérer les produits si la commande n'est pas payée.
 
-#### 5. Frontend (Client)
+##### 5. Frontend (Client)
 
 * **`src/services/api.js`** : Client HTTP (Axios). Centralise la configuration (Base URL, Timeouts) et le typage des réponses API.
 * **`src/components/Cart.vue`** : Interface Panier.
@@ -363,24 +363,24 @@ Responsabilités clarifiées. Chaque fichier a un rôle unique (Single Responsib
 **Réponse complète :**
 Voici le mapping précis entre les règles métier (invariants) et les composants techniques qui les garantissent :
 
-#### 1. Atomicité du Stock (Pas de survente)
+##### 1. Atomicité du Stock (Pas de survente)
 
 * **Garant :** `src/modules/stock/stock.service.js` + `Prisma Schema`
 * **Mécanisme :** Utilise le verrouillage optimiste via une clause `WHERE version = current_version` lors de l'update en base. Si la version a changé (concurrence), la transaction échoue.
 
-#### 2. Cohérence des États de Commande
+##### 2. Cohérence des États de Commande
 
 * **Garant :** `src/modules/order/order.machine.js` (XState)
 * **Mécanisme :** La machine à états définit strictement les transitions autorisées.
   * *Exemple :* Impossible de passer de `Draft` à `Shipped` sans passer par `Paid` et `Prepared`.
   * *Exemple :* Impossible de passer de `Expired` à `Paid` (force la transition vers `Conflict`).
 
-#### 3. Intégrité du Calcul Panier (Prix & Promos)
+##### 3. Intégrité du Calcul Panier (Prix & Promos)
 
 * **Garant :** `src/modules/cart/cart.service.js` (Event Sourcing)
 * **Mécanisme :** Le total n'est jamais stocké comme une valeur mutable simple. Il est toujours recalculé en rejouant la séquence d'événements (`item_added`, `promo_applied`), garantissant que le total correspond toujours exactement au contenu.
 
-#### 4. Exclusivité et Limites des Promotions
+##### 4. Exclusivité et Limites des Promotions
 
 * **Garant (Logique) :** `src/modules/cart/promotion.service.js`
 * **Garant (Concurrence) :** `src/config/redis.js`
@@ -388,12 +388,12 @@ Voici le mapping précis entre les règles métier (invariants) et les composant
   * Le service vérifie les règles d'incompatibilité (ex: "Promo A ne fonctionne pas avec Promo B").
   * Redis assure l'incrémentation atomique pour les limites globales (ex: "Premiers 100 utilisateurs seulement").
 
-#### 5. Fiabilité des Événements (Pas de perte de message)
+##### 5. Fiabilité des Événements (Pas de perte de message)
 
 * **Garant :** `src/workers/outbox.worker.js` + `Prisma Transaction`
 * **Mécanisme :** Pattern Outbox. L'événement "Stock Réservé" est écrit dans la même transaction SQL que la réservation. Le worker assure que le message est bien délivré à RabbitMQ (At-least-once delivery).
 
-#### 6. Gestion du "Zombie Payment" (Paiement hors délai)
+##### 6. Gestion du "Zombie Payment" (Paiement hors délai)
 
 * **Garant :** `src/modules/payment/payment.service.js`
 * **Mécanisme :** Lors de la réception du webhook de paiement, le service interroge l'état actuel de la commande. Si l'état est `Expired`, il déclenche automatiquement le flux de remboursement/conflit au lieu de valider la commande.
@@ -415,11 +415,11 @@ Les responsabilités de chaque invariant sont clairement attribuées. Nous pouvo
 **Réponse complète :**
 Voici le plan d'action étape par étape pour la phase de génération, ainsi que la mise en place de la structure du projet.
 
-#### 1. Mise à jour du Journal (Red/Blue Chains)
+##### 1. Mise à jour du Journal (Red/Blue Chains)
 
 Les chaînes ont été ajoutées pour séparer les phases de conception (Red) et de réalisation (Blue).
 
-#### 2. Plan de Génération (Step-by-Step)
+##### 2. Plan de Génération (Step-by-Step)
 
 Nous suivrons cet ordre précis pour garantir la testabilité à chaque étape :
 
@@ -435,18 +435,18 @@ Nous suivrons cet ordre précis pour garantir la testabilité à chaque étape :
 10. **Frontend Setup :** Initialisation Vue.js + Vite. *Test : Page d'accueil.*
 11. **Frontend Components :** Intégration API dans `Cart.vue` et `ProductList.vue`. *Test : Parcours utilisateur complet.*
 
-#### 3. Consignes de Génération
+##### 3. Consignes de Génération
 
 Pour chaque fichier généré, je fournirai systématiquement :
 
 * Le code complet du fichier.
 * Les commandes shell nécessaires (création de fichier, installation de dépendances, exécution de tests).
 
-#### 4. Initialisation du Squelette
+##### 4. Initialisation du Squelette
 
 La structure complète des dossiers et fichiers vides a été générée conformément à l'architecture validée.
 
-#### 5. Stratégie de Contexte (Fichiers nécessaires)
+##### 5. Stratégie de Contexte (Fichiers nécessaires)
 
 Pour travailler efficacement, voici les fichiers que je dois avoir en contexte à chaque interaction :
 
@@ -711,3 +711,106 @@ Le message d'erreur indique que le client Redis n'est pas connecté lors de l'ap
 
 **Décision :**
 Connexion Redis initialisée au démarrage du serveur.
+
+#### P35 - Analyse des choix implicites et Rétrospective des corrections
+
+**Prompt :**
+> Yes it's working ! Now I would love if you can analyze the implicit choices made in the generated code of this project. For this entry in the diary, be exhaustive, put everything in your response part. I also want you to identify 3 manual corrections we went through during this project since the beginning of the blue chain. And confirm that every correction is documented in the diary.
+
+**Réponse complète :**
+Voici l'analyse des choix techniques implicites (non spécifiés explicitement dans la phase de décision) et la rétrospective des corrections.
+
+##### 1. Analyse des Choix Implicites (Génération)
+
+* **Modélisation des Données (Prisma) :**
+
+  * **Snapshot JSON :** Le modèle `Order` utilise un champ `items Json` au lieu d'une table relationnelle `OrderItem`. *Impact :* Simplifie la capture de l'état de la commande au moment de l'achat (prix figés), mais rend les requêtes analytiques (ex: "combien de produits X vendus ?") plus complexes.
+  * **Types de données :** Utilisation de `Decimal` pour les prix (bonnes pratiques financières) et `UUID` pour les IDs (sécurité/distribution).
+
+* **Architecture Backend :**
+
+  * **Monolithe Modulaire :** Organisation par dossiers (`modules/cart`, `modules/stock`) au sein d'une seule instance Express, plutôt que de vrais microservices déployables séparément.
+  * **Polling pour l'Outbox :** Le worker `outbox.worker.js` utilise un `setInterval` (Pull) plutôt qu'un mécanisme de notification DB (Push/CDC). *Impact :* Plus simple à implémenter, mais introduit une latence d'au moins 1 seconde.
+  * **Gestion d'erreurs :** Utilisation d'un handler global basique dans `app.js` sans classes d'erreurs personnalisées (Domain Errors).
+
+* **Architecture Frontend :**
+
+  * **Gestion d'état locale :** Absence de Store global (Pinia/Vuex). L'état `cartId` est géré dans `App.vue` et passé via props ("Props Drilling"). *Impact :* Suffisant pour ce périmètre, mais limiterait la scalabilité du frontend.
+  * **Composition API :** Utilisation exclusive de `<script setup>` (Vue 3 moderne).
+
+* **Infrastructure & Libs :**
+
+  * **RabbitMQ Driver :** Utilisation de `amqplib` (bas niveau) sans abstraction supérieure.
+  * **Redis Client :** Utilisation de `node-redis` v4 (Promise-based).
+
+##### 2. Rétrospective : 3 Corrections Manuelles (Blue Chain)
+
+Nous avons rencontré et corrigé plusieurs obstacles techniques. Voici 3 exemples majeurs documentés :
+
+1. **Incompatibilité de Version Prisma (P17) :**
+
+* *Problème :* `npm audit fix --force` a créé un décalage entre la CLI (v6) et le Client (v7).
+* *Correction :* Downgrade manuel du package `@prisma/client` en v6.19.2.
+
+1. **Mock de Transaction Manquant (P23) :**
+
+* *Problème :* Les tests unitaires du Stock ont échoué après l'ajout de `prisma.$transaction` car le mock Jest ne gérait pas les callbacks transactionnels.
+* *Correction :* Réécriture du mock dans `stock.service.test.js` pour exécuter le callback immédiatement.
+
+1. **Client Redis Fermé (P34) :**
+
+* *Problème :* Erreur "The client is closed" lors de l'application des promos.
+* *Correction :* Ajout de l'appel explicite `connectRedis()` dans l'initialisation de `app.js`.
+
+**Confirmation :**
+Chacune de ces corrections correspond à une entrée spécifique dans ce journal (`P17`, `P23`, `P34`), garantissant la traçabilité complète du développement.
+
+**Décision :**
+Projet audité et documenté. Prêt pour la finalisation (README).
+
+#### P36 - Audit d'Indépendance des Micro-outils
+
+**Prompt :**
+> Could you please verify the independency of every micro tools we created in this project please. You can add an entry in the diary for this prompt. And I want you to answer for every tool, if the tool has a unique responsibility. If it can work independently from other tools. And if the dependencies between components go through clear interfaces (like dependency injection no direct call. I want you to write in the diary all of your response, not a summary for this entry please. Don't touch to the headers from other entries.They're 5th lvl header inside every prompt because I want to be able to fold every prompt independently with one arrow
+
+**Réponse complète :**
+Voici l'audit de l'indépendance et des responsabilités pour chaque module ("micro-outil") du système.
+
+##### 1. Module Stock (`src/modules/stock`)
+
+* **Responsabilité Unique :** **OUI**. Il ne gère que l'inventaire, les réservations et les versions (concurrence).
+* **Indépendance :** **HAUTE**. Il ne dépend d'aucun autre module métier. Il dépend uniquement de l'infrastructure (Prisma/DB).
+* **Interfaces & Dépendances :** Il expose des méthodes publiques (`reserveStock`, `releaseStock`). Cependant, il est appelé via un **import direct** (`require`) par le module `Order` et le `ExpirationWorker`. Il n'y a pas d'injection de dépendance, ce qui crée un couplage statique fort au niveau du code.
+
+##### 2. Module Cart (`src/modules/cart`)
+
+* **Responsabilité Unique :** **OUI**. Il gère l'accumulation des articles et le calcul du total via Event Sourcing.
+* **Indépendance :** **MOYENNE**. Il dépend directement du `PromotionService` pour valider les codes et calculer les réductions.
+* **Interfaces & Dépendances :** Le service importe directement `promotion.service.js`. Si nous voulions changer de moteur de promotion, il faudrait modifier le code du `CartService`.
+
+##### 3. Module Order (`src/modules/order`)
+
+* **Responsabilité Unique :** **OUI**. Il gère le cycle de vie de la commande (Machine à états XState).
+* **Indépendance :** **FAIBLE**. C'est le point d'orchestration. Lors du checkout (`order.routes.js`), il appelle explicitement `stockService.reserveStock`.
+* **Interfaces & Dépendances :** Couplage direct avec le Stock. Le module ne peut pas fonctionner si le module Stock n'est pas présent dans le même runtime.
+
+##### 4. Module Promotion (`src/modules/cart/promotion.service.js`)
+
+* **Responsabilité Unique :** **OUI**. Il encapsule la logique de validation des codes et les compteurs globaux (Redis).
+* **Indépendance :** **HAUTE**. Il est autonome et ne dépend d'aucun autre module métier.
+* **Interfaces & Dépendances :** Utilisé par le Cart.
+
+##### 5. Workers (`src/workers`)
+
+* **Responsabilité Unique :** **OUI**. Ils gèrent les tâches asynchrones et la fiabilité (Outbox, Expiration).
+* **Indépendance :** **N/A (Glue Code)**. Par nature, les workers couplent les modules. `expiration.worker.js` importe `Stock`, `Order` et `Email` pour exécuter un processus métier complet.
+
+##### Conclusion Globale
+
+Le projet suit une architecture de **Monolithe Modulaire**.
+
+* **Points forts :** Séparation claire des responsabilités (SRP) par dossiers.
+* **Limites d'indépendance :** Les dépendances sont gérées par des imports de modules Node.js (`require`) et non par des interfaces abstraites ou de l'injection de dépendance (DI). Les modules partagent la même instance de base de données (Prisma). Ils ne sont pas déployables séparément sans refactoring.
+
+**Décision :**
+L'architecture actuelle favorise la simplicité et la cohérence transactionnelle (via Prisma) au détriment d'une indépendance stricte de déploiement. C'est un choix cohérent pour la taille du projet.

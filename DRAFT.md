@@ -5,6 +5,8 @@
 - **MD032** : Toujours mettre une ligne vide avant et après une liste (ordonnée ou non).
 - **MD030** : Un seul espace après le marqueur de liste (ex: `- Item` et pas `-   Item`).
 - **MD025** : Un seul titre de niveau 1 (`#`) par fichier.
+- **MD007** : Indentation des listes non ordonnées (2 espaces attendus).
+- **MD029** : Préfixe des listes ordonnées (utiliser `1.` pour chaque item si la liste est interrompue).
 
 ## Workflow
 
