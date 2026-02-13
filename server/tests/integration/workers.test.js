@@ -13,6 +13,9 @@ describe('Worker Lifecycle Integration', () => {
     await connectRedis();
     setupContainer(); // Initialize DI container
 
+    // Force delay to 1s for tests to ensure reliability regardless of NODE_ENV
+    container.outboxWorker.delay = 1000;
+
     await container.expirationWorker.start();
     outboxInterval = setInterval(() => container.outboxWorker.process(), 500); // Poll every 500ms
 
